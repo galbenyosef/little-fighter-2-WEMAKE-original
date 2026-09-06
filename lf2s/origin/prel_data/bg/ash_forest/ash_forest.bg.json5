@@ -94,7 +94,9 @@
       file: "bg/ash_forest/ash_drop.png",
       x: 0,
       y: 422,
-      z: 0,
+      z: 1,
+      offsetAnimX: 10,
+      offsetAnimY: 10
     },
   ],
 }
