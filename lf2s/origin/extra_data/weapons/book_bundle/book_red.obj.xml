@@ -92,193 +92,193 @@
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
   </frame>
   <frame id="20" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,0"/>
+    <model id="1" rotation="-1.5708,0,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="17,2,13,44"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="21" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,0.3927"/>
+    <model id="1" rotation="-1.5708,0.3927,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="15,20,12,23" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="22" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,0.7854"/>
+    <model id="1" rotation="-1.5708,0.7854,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="15,21,10,17" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="23" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,1.1781"/>
+    <model id="1" rotation="-1.5708,1.1781,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="9,25,14,13" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="24" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,1.5708"/>
+    <model id="1" rotation="-1.5708,1.5708,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="8,24,18,12" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="25" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,1.9635"/>
+    <model id="1" rotation="1.5708,1.1781,-3.1416"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="6,18,24,15" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="26" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,2.3562"/>
+    <model id="1" rotation="1.5708,0.7854,-3.1416"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="12,12,16,17" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="27" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,2.7489"/>
+    <model id="1" rotation="1.5708,0.3927,-3.1416"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="12,8,14,19" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="28" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,3.1416"/>
+    <model id="1" rotation="1.5708,0,-3.1416"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="18,9,13,19" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="29" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,3.5343"/>
+    <model id="1" rotation="1.5708,-0.3927,3.1416"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="18,6,14,24" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="30" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,3.927"/>
+    <model id="1" rotation="1.5708,-0.7854,3.1416"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="22,12,19,15" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="31" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,4.3197"/>
+    <model id="1" rotation="1.5708,-1.1781,3.1416"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="19,15,22,14" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="32" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,4.7124"/>
+    <model id="1" rotation="-1.5708,-1.5708,0"/>
     <next/>
     <itr kind="5" qube="20,20,22,12"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="33" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,5.1051"/>
+    <model id="1" rotation="-1.5708,-1.1781,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="22,25,20,15" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="34" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,5.4978"/>
+    <model id="1" rotation="-1.5708,-0.7854,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="22,25,17,16" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="35" name="on_hand" state="1001" wait="1" center="24,35" size="48,48" no_shadow="1" landable="1" state_label="Weapon_OnHand">
-    <model id="1" rotation="-0.5,0,5.8905"/>
+    <model id="1" rotation="-1.5708,-0.3927,0"/>
     <next/>
     <itr kind="5" fall="40" bdefend="32" injury="789" qube="19,23,13,21" dv="8"/>
     <wpoint kind="2" pos="24,28,0" weaponact="0"/>
   </frame>
   <frame id="40" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,0"/>
+    <model id="1" rotation="0,0,0"/>
     <next id="41"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="41" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,0.3927"/>
+    <model id="1" rotation="-0.0324,0.3493,0.1832"/>
     <next id="42"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="42" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,0.7854"/>
+    <model id="1" rotation="-0.1518,0.6847,0.4205"/>
     <next id="43"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="43" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,1.1781"/>
+    <model id="1" rotation="-0.4539,0.9726,0.8237"/>
     <next id="44"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="44" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,1.5708"/>
+    <model id="1" rotation="-1.1071,1.1071,1.5708"/>
     <next id="45"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="45" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,1.9635"/>
+    <model id="1" rotation="-1.7604,0.9726,2.3179"/>
     <next id="46"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="46" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,2.3562"/>
+    <model id="1" rotation="-2.0625,0.6847,2.7211"/>
     <next id="47"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="47" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,2.7489"/>
+    <model id="1" rotation="-2.1819,0.3493,2.9584"/>
     <next id="48"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="48" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,3.1416"/>
+    <model id="1" rotation="-2.2143,0,3.1416"/>
     <next id="49"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="49" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,3.5343"/>
+    <model id="1" rotation="-2.1819,-0.3493,-2.9584"/>
     <next id="50"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="50" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,3.927"/>
+    <model id="1" rotation="-2.0625,-0.6847,-2.7211"/>
     <next id="51"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="51" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,4.3197"/>
+    <model id="1" rotation="-1.7604,-0.9726,-2.3179"/>
     <next id="52"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="52" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,4.7124"/>
+    <model id="1" rotation="-1.1071,-1.1071,-1.5708"/>
     <next id="53"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="53" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,5.1051"/>
+    <model id="1" rotation="-0.4539,-0.9726,-0.8237"/>
     <next id="54"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="54" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,5.4978"/>
+    <model id="1" rotation="-0.1518,-0.6847,-0.4205"/>
     <next id="55"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
   </frame>
   <frame id="55" name="throwing" state="1002" wait="1" center="24,35" size="48,48" landable="1" state_label="Weapon_Throwing">
-    <model id="1" rotation="-0.5,0,5.8905"/>
+    <model id="1" rotation="-0.0324,-0.3493,-0.1832"/>
     <next id="40"/>
     <bdy kind="0" hit_flag="63" qube="16,16,19,19"/>
     <itr kind="0" fall="120" bdefend="32" injury="35" qube="16,16,19,19"/>
