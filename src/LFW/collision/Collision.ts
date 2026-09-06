@@ -1,5 +1,6 @@
 import type { LFW } from "../LFW";
 import type { World } from "../World";
+import { Buff_GroupAttack } from "../buff/Buff_GroupAttack";
 import { ENTITY_PRIORITY_MAP, HitFlag, ItrKind, type IBdyInfo, type IBounding, type IFrameInfo, type IItrInfo, } from "../defines";
 import { Ditto } from "../ditto";
 import type { Entity } from "../entity";
@@ -141,8 +142,11 @@ export function collision_new(o: Readonly<ICollisionInits>): Collision {
   } while (0);
 
   let rest = 0;
+  const { min_vrest, vrest_offset, itr_arest } = a.world.dataset;
   if (!itr.arest && itr.vrest) {
-    rest = max(a.world.dataset.min_vrest, itr.vrest + a.world.dataset.vrest_offset)
+    rest = max(min_vrest, itr.vrest + vrest_offset)
+  } else if (itr.kind === ItrKind.Normal && Buff_GroupAttack.has_on(a)) {
+    rest = max(min_vrest, (itr.arest || itr_arest) + vrest_offset)
   }
   const c: Partial<Collision> = a.lfw.acquire_collision() || {}
   c.id = rest ? a.lfw.new_id : a.id;
@@ -275,9 +279,9 @@ export function collision_clone(src: Collision): Collision {
 export function collision_test(c: Collision): boolean {
   if (c.bdy_index < 0) return false; // should not happen
   if (c.itr_index < 0) return false; // should not happen
-  const { itr, attacker, victim, a_cube, b_cube, bdy } = c
-  if (!itr.vrest && attacker.arest) return false;
-  if (itr.vrest && victim.get_v_rest(c.aid)) return false;
+  const { itr, attacker, victim, a_cube, b_cube, bdy, rest } = c
+  if (!rest && attacker.arest) return false;
+  if (rest && victim.get_v_rest(c.aid)) return false;
 
   if (itr.kind !== ItrKind.Heal) {
     const b_catcher = victim.catcher;
