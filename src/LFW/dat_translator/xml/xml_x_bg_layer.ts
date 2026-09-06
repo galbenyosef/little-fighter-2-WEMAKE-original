@@ -19,10 +19,14 @@ export function xml_2_bg_layer(el: IXMLElement, index: number): IBgLayerInfo {
   ret.y           /**/ = el.get_num("y") ?? pos?.[1] ?? rect?.[1] ?? ret.y
   ret.w           /**/ = el.get_num("w") ?? size?.[0] ?? rect?.[2] ?? ret.w
   ret.h           /**/ = el.get_num("h") ?? size?.[1] ?? rect?.[3] ?? ret.h
+  ret.dw          /**/ = el.get_num("dw") ?? ret.dw
+  ret.dh          /**/ = el.get_num("dh") ?? ret.dh
+  ret.uv_loop     /**/ = el.get_num("uv_loop") ?? ret.uv_loop
   ret.z           /**/ = el.get_num("z") ?? index ?? ret.z
   ret.loop        /**/ = el.get_num("loop") ?? ret.loop;
   ret.absolute    /**/ = el.get_num("absolute") ?? ret.absolute;
   ret.color       /**/ = el.get_str("color") ?? ret.color;
+  ret.opacity     /**/ = el.get_num("opacity") ?? ret.opacity;
   ret.cc          /**/ = el.get_num("cc") ?? ret.cc;
   ret.c1          /**/ = el.get_num("c1") ?? ret.c1;
   ret.c2          /**/ = el.get_num("c2") ?? ret.c2;
@@ -43,6 +47,9 @@ export function xml_x_bg_layer(xml: IXML, l: IBgLayerInfo, tag: string): IXMLEle
   layer.set_attr("z", l.z);
   layer.set_attr("w", l.w);
   layer.set_attr("h", l.h);
+  layer.set_attr("dw", l.dw);
+  layer.set_attr("dh", l.dh);
+  layer.set_attr("uv_loop", l.uv_loop);
   layer.set_attr("loop", l.loop);
   layer.set_attr("absolute", l.absolute);
   layer.set_attr("cc", l.cc);
@@ -54,6 +61,7 @@ export function xml_x_bg_layer(xml: IXML, l: IBgLayerInfo, tag: string): IXMLEle
   layer.set_attr("name", l.name);
   layer.set_attr("file", l.file);
   layer.set_attr("color", l.color);
+  layer.set_attr("opacity", l.opacity);
   return layer;
 }
 

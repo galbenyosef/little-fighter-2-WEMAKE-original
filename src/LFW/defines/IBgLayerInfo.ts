@@ -40,6 +40,12 @@ export interface IBgLayerInfo {
    */
   color?: number | string;
 
+  /**
+   * 图层不透明度（可选，0~1，默认 1）
+   * 1 = 完全不透明；作用于整层
+   */
+  opacity?: number;
+
   width: number;
   height: number;
   x: number;
@@ -47,6 +53,21 @@ export interface IBgLayerInfo {
   z: number;
   w: number;
   h: number;
+
+  /**
+   * 目标显示宽度（可选，仅图层带图时生效）
+   * - 缺省 = 图片自身显示尺寸
+   * - 未开 uv_loop：整图缩放/拉伸到该尺寸
+   * - 开 uv_loop：目标尺寸超过原图尺寸的轴按 UV 循环平铺，未超过则缩放铺满
+   */
+  dw?: number;
+  /** 目标显示高度（可选，同上） */
+  dh?: number;
+  /**
+   * UV 平铺循环开关（非 0 = 目标超出原图尺寸时循环平铺，而非拉伸）
+   */
+  uv_loop?: number;
+
   /** 
    * x轴循环布置间隔距离
    */
@@ -81,6 +102,7 @@ export const bg_layer_info_fields = fields<IBgLayerInfo>({
   file: str("文件"),
   absolute: int("绝对"),
   color: any,
+  opacity: flt("不透明度"),
   width: int("宽度"),
   height: int("高度"),
   x: int("X"),
@@ -88,6 +110,9 @@ export const bg_layer_info_fields = fields<IBgLayerInfo>({
   z: int("Z"),
   w: int("W"),
   h: int("H"),
+  dw: flt("目标显示宽"),
+  dh: flt("目标显示高"),
+  uv_loop: int("UV循环"),
   loop: int("循环间隔"),
   cc: int("CC"),
   c1: int("C1"),
@@ -104,6 +129,7 @@ export const Schema_IBgLayerInfo = make_schema<IBgLayerInfo>({
     file: { type: 'string', nullable: true },
     absolute: { type: 'number', nullable: true },
     color: { type: 'string', nullable: true },
+    opacity: { type: 'number', nullable: true },
     width: { type: 'number' },
     height: { type: 'number' },
     x: { type: 'number' },
@@ -111,6 +137,9 @@ export const Schema_IBgLayerInfo = make_schema<IBgLayerInfo>({
     z: { type: 'number' },
     w: { type: 'number' },
     h: { type: 'number' },
+    dw: { type: 'number', nullable: true },
+    dh: { type: 'number', nullable: true },
+    uv_loop: { type: 'number', nullable: true },
     loop: { type: 'number', nullable: true },
     cc: { type: 'number', nullable: true },
     c1: { type: 'number', nullable: true },

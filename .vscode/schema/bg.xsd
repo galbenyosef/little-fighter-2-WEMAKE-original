@@ -225,6 +225,26 @@
         <xs:documentation>Clip height.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="dw" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>目标显示宽度（可选，带图时生效）</xs:documentation>
+        <xs:documentation>Target display width (optional, only when the layer has an image).</xs:documentation>
+        <xs:documentation>缺省 = 图片自身显示尺寸；未开 uv_loop 时整图缩放/拉伸到此尺寸</xs:documentation>
+        <xs:documentation>Default = the image's own display size; without uv_loop the whole image is scaled/stretched to this size.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dh" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>目标显示高度（可选，同上）</xs:documentation>
+        <xs:documentation>Target display height (optional, as above).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="uv_loop" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>UV 平铺循环开关（非 0 = 目标尺寸超出原图尺寸时按 UV 循环平铺，而非拉伸）</xs:documentation>
+        <xs:documentation>UV tiling switch (non-zero = tile the UV once the target size exceeds the source image size, instead of stretching).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="z" type="xs:double">
       <xs:annotation>
         <xs:documentation>层级 Z（越大越靠前）</xs:documentation>
@@ -247,6 +267,12 @@
       <xs:annotation>
         <xs:documentation>图层着色（颜色值）</xs:documentation>
         <xs:documentation>Layer tint (color value).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="opacity" type="xs:double">
+      <xs:annotation>
+        <xs:documentation>图层不透明度（可选，0~1，默认 1）</xs:documentation>
+        <xs:documentation>Layer opacity (optional, 0~1, default 1).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="cc" type="xs:double">
