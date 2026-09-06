@@ -1,6 +1,6 @@
 import type { LFW } from "../LFW";
 import type { World } from "../World";
-import { Buff_GroupAttack } from "../buff/Buff_GroupAttack";
+import { has_group_attack_buff } from "../buff/group_attack_flags";
 import { ENTITY_PRIORITY_MAP, HitFlag, ItrKind, type IBdyInfo, type IBounding, type IFrameInfo, type IItrInfo, } from "../defines";
 import { Ditto } from "../ditto";
 import type { Entity } from "../entity";
@@ -145,7 +145,7 @@ export function collision_new(o: Readonly<ICollisionInits>): Collision {
   const { min_vrest, vrest_offset, itr_arest } = a.world.dataset;
   if (!itr.arest && itr.vrest) {
     rest = max(min_vrest, itr.vrest + vrest_offset)
-  } else if (itr.kind === ItrKind.Normal && Buff_GroupAttack.has_on(a)) {
+  } else if (itr.kind === ItrKind.Normal && has_group_attack_buff(a.world.buffs, a.id)) {
     rest = max(min_vrest, (itr.arest || itr_arest) + vrest_offset)
   }
   const c: Partial<Collision> = a.lfw.acquire_collision() || {}

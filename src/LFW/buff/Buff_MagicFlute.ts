@@ -1,6 +1,6 @@
 import { EntityEnum, ItrKind, SpeedMode, StateEnum } from "../defines";
 import { calc_v, summary_mgr } from "../entity";
-import { Entity } from "../entity/Entity";
+import type { Entity } from "../entity/Entity";
 import { Buff } from "./Buff";
 
 export class Buff_MagicFlute extends Buff {
