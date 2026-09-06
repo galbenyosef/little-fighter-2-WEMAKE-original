@@ -24,6 +24,7 @@ export class BgRender {
     this.root_node = null
     this.cam_node?.removeFromParent();
     this.cam_node = null
+    for (const layer of this.layers) layer.release();
     this.layers.length = 0;
 
     this.bg = bg;
@@ -80,6 +81,7 @@ export class BgRender {
     this.cam_node?.removeFromParent();
     this.root_node = null
     this.cam_node = null
+    for (const layer of this.layers) layer.release();
     this.layers.length = 0;
     this.bg = null
     this.quaternion.set(0, 0, 0, 0)
