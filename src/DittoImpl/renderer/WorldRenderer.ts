@@ -24,12 +24,15 @@ export class WorldRenderer implements IWorldRenderer {
   readonly bg_render: BgRender;
   readonly bg_flags: TerrainIndicator;
   readonly camera: Camera;
+  readonly bg_camera: OrthographicCamera;
+  readonly fg_camera: OrthographicCamera;
   readonly ui_bg_camera: OrthographicCamera;
   readonly ui_fg_camera: OrthographicCamera;
   readonly ui_bg_container: Object3D;
   readonly ui_fg_container: Object3D;
   readonly ui_offset = new Vector3(0, 0, 0);
   readonly bg_container: Object3D;
+  readonly fg_container: Object3D;
   readonly bg_offset = new Vector3(0, 0, 0);
   readonly world_node = new Object3D();
   readonly overlay_node = new Object3D();
@@ -42,6 +45,8 @@ export class WorldRenderer implements IWorldRenderer {
   protected _css_renderer?: CSS2DRenderer;
   protected _canvas_ob = new MutationObserver(() => this.on_win_resize());
   protected scene: Scene = new Scene();
+  protected bg_scene = new Scene();
+  protected fg_scene = new Scene();
   protected ui_bg_scene = new Scene();
   protected ui_fg_scene = new Scene();
   protected renderer_w: number = 0;
@@ -102,7 +107,9 @@ export class WorldRenderer implements IWorldRenderer {
     this.ui_fg_scene.add(this.ui_fg_container);
 
     this.bg_container = new Object3D();
-    this.scene.add(this.bg_container);
+    this.bg_scene.add(this.bg_container);
+    this.fg_container = new Object3D();
+    this.fg_scene.add(this.fg_container);
     {
       const camera = this.camera = new OrthographicCamera()
       camera.left = 0;
@@ -117,6 +124,8 @@ export class WorldRenderer implements IWorldRenderer {
       camera.name = "default_orthographic_camera"
       this.add_camera(camera);
       camera.updateProjectionMatrix();
+      this.bg_camera = this.make_ui_camera(camera, "bg_camera")
+      this.fg_camera = this.make_ui_camera(camera, "fg_camera")
       this.ui_bg_camera = this.make_ui_camera(camera, "ui_bg_camera")
       this.ui_fg_camera = this.make_ui_camera(camera, "ui_fg_camera")
     }
@@ -188,6 +197,8 @@ export class WorldRenderer implements IWorldRenderer {
     }
 
     this.camera.position.lerpVectors(this.cam_p0, this.cam_p1, this.dfactor)
+    this.bg_camera.position.copy(this.camera.position);
+    this.fg_camera.position.copy(this.camera.position);
     this.ui_bg_camera.position.copy(this.camera.position);
     this.ui_fg_camera.position.copy(this.camera.position);
     const ui_x = this.camera.position.x + this.ui_offset.x;
@@ -238,9 +249,8 @@ export class WorldRenderer implements IWorldRenderer {
     r.render(this.ui_bg_scene, this.ui_bg_camera);
     css?.render(this.ui_bg_scene, this.ui_bg_camera);
 
-    // 背景（MeshBasic 无光照，单独成根绘制，始终位于实体之后）
     r.clearDepth();
-    r.render(this.bg_container, this.camera);
+    r.render(this.bg_scene, this.bg_camera);
     // 实体：跨实体遮挡按“实体 z 平面”画家判定（组间清深度、组内真实深度）。
     // 纯 2D 时所有组合并为一次渲染，行为与单次 scene 渲染一致。
     const groups = this.collect_entity_groups();
@@ -249,6 +259,9 @@ export class WorldRenderer implements IWorldRenderer {
     // 归还复用的组数组，供下一帧再次使用
     for (let i = 0; i < groups.length; i++) this._grp_pool.push(groups[i]);
     css?.render(this.scene, this.camera);
+
+    r.clearDepth();
+    r.render(this.fg_scene, this.fg_camera);
 
     r.clearDepth();
     r.render(this.ui_fg_scene, this.ui_fg_camera);
@@ -295,7 +308,6 @@ export class WorldRenderer implements IWorldRenderer {
   protected render_world_entities(groups: EntityRenderer[][]): void {
     const r = this._renderer;
     if (!r || !groups.length) return;
-    this.bg_container.visible = false;
     this.overlay_node.visible = false;
     this.world_node.updateMatrixWorld(true);
     for (const g of groups) for (const er of g) er.body.visible = false;
@@ -324,7 +336,6 @@ export class WorldRenderer implements IWorldRenderer {
         i = j;
       }
     }
-    this.bg_container.visible = true;
     this.overlay_node.visible = true;
   }
 
@@ -333,12 +344,10 @@ export class WorldRenderer implements IWorldRenderer {
     if (!r) return;
     // 叠加层仅剩地面调试网格等，平时为空 → 整段跳过，省一次 scene.render
     if (this.overlay_node.children.length) {
-      this.bg_container.visible = false;
       for (const g of groups) for (const er of g) er.body.visible = false;
       this.world_node.updateMatrixWorld(true);
       r.clearDepth();
       r.render(this.scene, this.camera);
-      this.bg_container.visible = true;
     }
     // 实体主体恢复可见（供下一帧 css / 单次渲染等读取）
     for (const g of groups) for (const er of g) er.body.visible = true;
