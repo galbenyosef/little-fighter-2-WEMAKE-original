@@ -1139,7 +1139,6 @@ export class Entity {
     }
     const data = this.lfw.datas.find(oid);
     if (!data) {
-      console.warn('[broken-spawn] data not found for oid:', oid);
       Ditto.warn(
         `[Entity::spawn_object] failed, oid: ${oid}, data: `,
         data,
@@ -1151,7 +1150,6 @@ export class Entity {
     }
     const entity = this.lfw.factory.create_entity(this.world, data);
     if (!entity) {
-      console.warn('[broken-spawn] create_entity failed for oid:', oid);
       Ditto.warn(
         `[Entity::spawn_object] failed, oid: ${oid}, data: `,
         data,
@@ -1161,7 +1159,6 @@ export class Entity {
       debugger;
       return;
     }
-    console.warn('[broken-spawn] spawned', oid, 'at', this.position.x, this.position.y);
     entity.ctrl =
       this.lfw.factory.create_ctrl(entity._data.id, "", entity) ?? entity.ctrl;
     entity
