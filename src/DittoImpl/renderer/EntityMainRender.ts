@@ -118,6 +118,7 @@ export class EntityMainRender {
   protected _rot_e = new Euler();
   protected playing_anim = "";
   protected anim_loop = false;
+  protected anim_mapped = false;
   protected anim_speed = 1;
   protected prev_lifetime = 0;
   protected img: RImageInfo | undefined;
@@ -412,22 +413,31 @@ export class EntityMainRender {
     const sim_dt = (this.entity.lifetime - this.prev_lifetime) * this.atom_time()
     this.prev_lifetime = this.entity.lifetime
 
+    const total = this.frame.wait
+    const t = total > 0 ? clamp(1 - this.entity.wait / total, 0, 1) : 1
+
     if (model.pose) {
-      const total = this.frame.wait
-      const t = total > 0 ? clamp(1 - this.entity.wait / total, 0, 1) : 1
       this.apply_pose_blend(model.pose, this.get_next_model_pose(), t)
     }
-    if (model.anim) this.play_anim(model, sim_dt)
-    else this.stop_anim()
+    if (model.anim) {
+      if (model.seek !== void 0) this.play_anim_segment(model, t)
+      else this.play_anim(model, sim_dt)
+    } else {
+      this.stop_anim()
+    }
   }
 
-  /** 下一帧的姿态（用于当前帧姿态向下一帧插值） */
-  private get_next_model_pose(): IFrameModelPose | undefined {
+  private get_next_frame(): IFrameInfo | undefined {
     const next = this.frame.next
     if (!next) return void 0
     const id = typeof next === 'string' ? next : Array.isArray(next) ? (next[0] as any)?.id : (next as any)?.id
     if (!id) return void 0
-    return this.data.frames?.[id]?.model?.pose
+    return this.data.frames?.[id]
+  }
+
+  /** 下一帧的姿态（用于当前帧姿态向下一帧插值） */
+  private get_next_model_pose(): IFrameModelPose | undefined {
+    return this.get_next_frame()?.model?.pose
   }
 
   /** 应用姿态（与下一帧姿态按 t 混合，t∈[0,1]） */
@@ -510,9 +520,10 @@ export class EntityMainRender {
     const name = model.anim ?? ''
     const loop = !!model.loop
     const speed = model.time_scale ?? 1
-    if (this.playing_anim !== name || this.anim_loop !== loop) {
+    if (this.playing_anim !== name || this.anim_loop !== loop || this.anim_mapped) {
       this.playing_anim = name
       this.anim_loop = loop
+      this.anim_mapped = false
       this.anim_speed = speed
       for (const [, a] of this.mixer_actions) a.stop()
       const action = this.mixer_actions.get(name)
@@ -528,9 +539,49 @@ export class EntityMainRender {
     this.mixer.update(sim_dt)
   }
 
+  private play_anim_segment(model: IFrameModel, t: number): void {
+    const action = this.ensure_anim_action(model)
+    if (!action) return
+    const duration = action.getClip().duration
+    const seek = Math.max(model.seek ?? 0, 0)
+    const next = this.get_next_frame()?.model
+    const same_clip = !!next && next.anim === model.anim && next.id === model.id
+    let end = same_clip && next!.seek !== void 0 ? Math.max(next!.seek ?? 0, 0) : duration
+    let seg_len = end - seek
+    if (!(seg_len > 0)) seg_len = duration - seek
+    if (!(seg_len > 0)) seg_len = 0
+    let u = t * (model.time_scale ?? 1)
+    if (model.loop) u = u - Math.floor(u)
+    else u = clamp(u, 0, 1)
+    action.time = seek + u * seg_len
+    this.mixer?.update(0)
+  }
+
+  private ensure_anim_action(model: IFrameModel): AnimationAction | undefined {
+    if (!this.mixer) return void 0
+    const name = model.anim ?? ''
+    const loop = !!model.loop
+    if (this.playing_anim !== name || this.anim_loop !== loop || !this.anim_mapped) {
+      this.playing_anim = name
+      this.anim_loop = loop
+      this.anim_mapped = true
+      this.anim_speed = 1
+      for (const [, a] of this.mixer_actions) a.stop()
+      const action = this.mixer_actions.get(name)
+      if (action) {
+        action.setLoop(loop ? LoopRepeat : LoopOnce, loop ? Infinity : 1)
+        action.timeScale = 1
+        action.reset().play()
+        action.paused = true
+      }
+    }
+    return this.mixer_actions.get(name)
+  }
+
   private stop_anim(): void {
     if (!this.playing_anim) return
     this.playing_anim = ""
+    this.anim_mapped = false
     for (const [, a] of this.mixer_actions) a.stop()
   }
 

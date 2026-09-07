@@ -19,6 +19,7 @@ export function xml_2_frame_model(el: IXMLElement | undefined): IFrameModel | un
   const ret = frame_model_new();
   ret.id = el.get_str("id", ret.id);
   ret.anim = el.get_str("anim");
+  ret.seek = el.get_num("seek");
   ret.loop = el.get_bool("loop");
   ret.time_scale = el.get_num("time_scale");
   ret.rad = el.get_num("rad");
@@ -68,6 +69,7 @@ export function xml_x_frame_model(xml: IXML, m: IFrameModel | undefined, tag: st
   const ret = xml.create(tag);
   ret.set_attr("id", m.id);
   ret.set_attr("anim", m.anim);
+  ret.set_attr("seek", m.seek);
   ret.set_attr("loop", m.loop);
   ret.set_attr("time_scale", m.time_scale);
   ret.set_attr("rad", m.rad);

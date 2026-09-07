@@ -32,6 +32,15 @@ export interface IFrameModel {
   pose?: IFrameModelPose;
   /** 模式 B：glTF 动画片段名 */
   anim?: string;
+  /**
+   * 模式 B · 片段定位：该帧在 anim 片段内要定位到的起始时间（秒，缺省 0）
+   *
+   * 用于把“帧序列”映射到“长动画片段内部”：
+   * 相邻帧（frame.next 且同模型同片段）用各自的 seek 划分片段区间，
+   * 当前帧按帧内进度 t∈[0,1]（由 wait 推导）线性推进到 [seek, 下一帧 seek)。
+   * 缺省（undefined）时走旧的连续播放（mixer 累计）。
+   */
+  seek?: number;
   /** 动画是否循环 */
   loop?: boolean;
   /** 动画速度倍率（配合 wait 控制节奏） */
@@ -80,6 +89,7 @@ export const frame_model_fields = fields<IFrameModel>({
   id: str('模型ID'),
   pose: obj('姿态', { nullable: true, fields: frame_model_pose_fields }),
   anim: str('动画片段', { nullable: true }),
+  seek: flt('片段定位(秒)', { nullable: true }),
   loop: bool('循环', { nullable: true }),
   time_scale: flt('速度倍率', { nullable: true }),
   rad: flt('Z轴旋转(弧度)', { nullable: true }),
@@ -95,6 +105,7 @@ export const Schema_IFrameModel = make_schema<IFrameModel>({
     id: { type: "string", description: "模型ID" },
     pose: { type: "object", nullable: true, description: "骨骼姿态" },
     anim: { type: "string", nullable: true, description: "动画片段名" },
+    seek: { type: "number", nullable: true, description: "片段内定位起始时间(秒)" },
     loop: { type: "boolean", nullable: true, description: "是否循环" },
     time_scale: { type: "number", nullable: true, description: "速度倍率" },
     rad: { type: "number", nullable: true, description: "Z轴旋转(弧度)" },
