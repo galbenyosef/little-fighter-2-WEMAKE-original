@@ -44,6 +44,7 @@
     "pack:ext:key": "node scripts/package-extension.mjs --key-gen",
     "build:ext:firefox": "node scripts/package-extension-firefox.mjs",
     "build:ext:firefox:only": "node scripts/package-extension-firefox.mjs --no-build",
+    "bilibili-toy": "npm run build && node scripts/zip-dist.mjs",
     "__OTHERS___": "__OTHERS___",
     "rn:pull": "node ./scripts/zipsync.mjs pull --url https://lf.gim.ink/convertings/rn.zip --dir ./lf2s/rn --zip ./lf2s/rn.zip",
     "rn:push": "node ./scripts/zipsync.mjs push --url https://lf.gim.ink/convertings/rn.zip --dir ./lf2s/rn --zip ./lf2s/rn.zip",
