@@ -8,11 +8,18 @@ import { Debug, Log, Warn } from "./Log";
 import { ewents } from './Utils/ewents';
 import './i18n';
 import { Err } from "@fimagine/logger";
+import { close_browser, enable_immersive_landscape } from "./toy_sdk";
 
 actor
   .add(UIActionEnum.Alert, (_, msg) => window.alert(msg))
   .add(UIActionEnum.LinkTo, (_, url) => window.open(url))
-  .add(UIActionEnum.Exit, () => window.confirm("确定退出?") && window.close())
+  .add(UIActionEnum.Exit, () => {
+    if (!window.confirm("确定退出?")) return
+    // B站 App 内用 Toy SDK 关闭容器；其它环境回退到 window.close()
+    close_browser().then(ok => {
+      if (!ok) window.close()
+    })
+  })
 
 const DEV = window.location.href.includes('DEV=1')
 Ditto.setup({
@@ -58,3 +65,6 @@ LFW.VERSION_NAME = [
   `v${VERSION_NAME}-${GIT_COMMIT_ID.substring(0, 7)}${GIT_COMMIT_DIRTY ? `-${GIT_COMMIT_DIRTY}` : ''}`,
   `${BUILD_TIME}`
 ].filter(v => v).join(' ');
+
+// B站 Toy 环境：App 内手机 / 平板进入时自动请求「沉浸横屏」（非 Toy 环境静默跳过）
+enable_immersive_landscape().catch(() => { })
