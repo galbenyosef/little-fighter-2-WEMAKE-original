@@ -16,22 +16,6 @@
   ],
   items: [
     {
-      id: "char_frame",
-      pos: "30, 100",
-      size: "225, 250",
-      img: {
-        path: "!sprite/frame@4x.png",
-        nine_patch: {
-          f_w: 72,
-          f_h: 72,
-          l_w: 28,
-          t_h: 28,
-          r_w: 28,
-          b_h: 28,
-        },
-      },
-    },
-    {
       id: "CharMenuHead",
       size: "120, 120",
       pos: "82, 120",
@@ -41,26 +25,29 @@
           properties: {
             countdown_label: "countdown_text",
             hints_node: "hints",
-            head_pic: "head_pic",
           },
         },
       ],
       items: [
-        {
-          id: "head",
-          pos: "60, 60",
-          center: "0.5,0.5",
-          size: "120, 120",
-          component: [{ id: "head_pic", cls: "Picture" }],
-        },
         {
           id: "hints",
           pos: "60, 60",
           center: "0.5,0.5",
           img: {
             path: "!sprite/CMA@4x.png",
-            w: 120,
-            h: 66,
+            dw: 240,
+            dh: 132,
+          },
+        },
+        {
+          id: "random_head",
+          pos: "60, 60",
+          center: "0.5,0.5",
+          visible: false,
+          img: {
+            path: "sprite/RFACE@4x.png",
+            dw: 240,
+            dh: 240,
           },
         },
         {
@@ -70,7 +57,7 @@
           visible: false,
           i18n: "5",
           style: {
-            font: '90px "Arial Black", Arial',
+            font: '200px "Arial Black", Arial',
           },
         },
       ],
@@ -78,20 +65,13 @@
     {
       id: "FighterName",
       size: "200, 20",
-      pos: "142, 272",
-      center: "0.5, 0.5",
-      component: ["FighterName()"],
-    },
-    {
-      id: "pick_hint",
-      pos: "142, 322",
-      center: "0.5, 0.5",
-      i18n: "bilibili_survival.pick_hint",
+      pos: "142, 400",
+      center: "0.5, 1",
+      opacity: 0.8,
       style: {
-        fill_style: "#9b9bff",
-        font: "14px Arial",
-        text_align: "center",
+        font: '36px "Arial Black", Arial',
       },
+      component: ["FighterName()"],
     },
   ],
 }
