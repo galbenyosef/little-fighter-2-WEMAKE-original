@@ -1,6 +1,7 @@
 import { GameKey } from "../../../defines/GameKey";
 import { ceil, max } from "../../../utils/math";
 import type { IUIKeyEvent } from "../../IUIKeyEvent";
+import { GamePrepareLogic } from "../GamePrepareLogic";
 import type { CharMenuLogic } from "./CharMenuLogic";
 import { CharMenuState } from "./CharMenuState";
 import { CharMenuState_Base } from "./CharMenuState_Base";
@@ -26,6 +27,13 @@ export class CharMenuState_CountingDown extends CharMenuState_Base {
     const num = ceil(this._count_down / 1000);
     this.owner.slots.forEach(v => v.head?.count_down(num));
     if (num > 0) return;
+    // 生存排行（无设置菜单）：就绪后直接开始，并回到选角态（避免返回时自动连开）
+    const gpl = this.owner.node.root.search_component(GamePrepareLogic)
+    if (gpl?.auto_start_when_ready && this.owner.max_player <= this.owner.players.size) {
+      this.lfw.broadcast('start_game')
+      this.owner.reset()
+      return;
+    }
     return this.owner.max_player <= this.owner.players.size ?
       CharMenuState.GameSetting :
       CharMenuState.ComNumSel;

@@ -1,5 +1,6 @@
 import { useShortcut } from "@fimagine/dom-hooks";
 import classNames from "classnames";
+import device from "current-device";
 import qs from "qs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -60,7 +61,7 @@ import img_btn_3_3 from "./assets/btn_3_3.png";
 import img_btn_4_3 from "./assets/btn_4_3.png";
 import { useForage } from "./hooks/useForage";
 import "./init";
-import { is_toy_env } from "./toy_sdk";
+import { get_my_rank, get_rank_list, is_toy_env, SURVIVAL_RANK_BOARD, submit_rank_score } from "./toy_sdk";
 import { DatViewer } from "./pages/dat_viewer/DatViewer";
 import { useWorkspaces } from "./pages/dat_viewer/useWorkspaces";
 import { Networking } from "./pages/network_test/Networking";
@@ -139,10 +140,10 @@ const app_state_version = '2'
 
 const is_mobile_container = navigator.userAgent.includes('lfw-mobile-container')
 
-/** 是否运行在 B站 App 内（Toy SDK 生效）的手机/平板容器 */
+/** 是否运行在 B站 App 内（Toy SDK 生效）的手机/平板容器：
+ * 用 current-device 按 UA 判定设备（手机/平板算移动平台），桌面/网页端不算。 */
 const is_toy_mobile_now = () =>
-  is_toy_env() &&
-  ['mobile', 'tablet'].some(v => document.firstElementChild?.classList.contains(v))
+  is_toy_env() && (device.mobile() || device.tablet())
 
 function App() {
   const l = useLocation()
@@ -200,16 +201,7 @@ function App() {
 
   const [is_maximised, set_is_maximised] = useState(false);
   const [is_fullscreen, _set_is_fullscreen] = useState(false);
-  const [toy_mobile, set_toy_mobile] = useState(is_toy_mobile_now);
-  useEffect(() => {
-    // B站 App 容器状态为异步写入 <html> 的 mobile/tablet 类，监听变化以同步 UI
-    const html = document.documentElement;
-    const update = () => set_toy_mobile(is_toy_mobile_now());
-    update();
-    const ob = new MutationObserver(update);
-    ob.observe(html, { attributes: true, attributeFilter: ["class"] });
-    return () => ob.disconnect();
-  }, []);
+  const [toy_mobile] = useState(is_toy_mobile_now);
   const { entity_flags, bg_flags } = world_dataset;
 
   useEffect(() => {
@@ -342,6 +334,21 @@ function App() {
     if (typeof lang !== 'string') lang = navigator.language.toLowerCase()
     else lang = lang.toLowerCase()
     const lf2 = ref_lfw.current = new LFW(dev == '1');
+    lf2.toy_env = is_toy_env()
+    if (is_toy_env()) {
+      // B站生存排行：每进入一个新的 Survival 阶段上报“已到达的阶段数”（榜位 1）
+      lf2.on_survival_rank_phase = (reached) => {
+        if (lf2.survival_rank_invalid) return
+        submit_rank_score(reached).catch(() => { })
+      }
+      // 生存排行准备页右侧榜单（Toy 环境才可用；支持周期/我的排名）
+      lf2.survival_rank_list = async ({ period, limit } = {}) =>
+        (await get_rank_list({ board: SURVIVAL_RANK_BOARD, period, limit: limit ?? 10 }))
+      lf2.survival_rank_my = async ({ period } = {}) => {
+        const mine = await get_my_rank({ board: SURVIVAL_RANK_BOARD, period })
+        return mine && mine.ranked ? { rank: mine.rank, score: mine.score } : null
+      }
+    }
     if (
       location.pathname.endsWith('demo') ||
       location.pathname.endsWith('demo/') ||

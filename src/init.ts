@@ -8,7 +8,11 @@ import { Debug, Log, Warn } from "./Log";
 import { ewents } from './Utils/ewents';
 import './i18n';
 import { Err } from "@fimagine/logger";
+import { install_mock_toy_if_requested } from "./mock_toy";
 import { close_browser, enable_immersive_landscape } from "./toy_sdk";
+
+// 本地开发：URL 带 TOY=1 时模拟 B站 Toy 容器（便于 localhost 测试生存排行等）
+install_mock_toy_if_requested()
 
 actor
   .add(UIActionEnum.Alert, (_, msg) => window.alert(msg))

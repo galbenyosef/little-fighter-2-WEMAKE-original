@@ -42,6 +42,7 @@ export * from "./IntegerPicker";
 export * from "./LabelButton";
 export * from "./LaunchPageLogic";
 export * from "./LittleFunnyAutoGame";
+export * from "./MainMenuLogic";
 export * from "./MiscSettingsLogic";
 export * from "./OpacityAnimation";
 export * from "./OpacityFlash";

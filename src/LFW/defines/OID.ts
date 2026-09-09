@@ -144,7 +144,13 @@ export const OIDDescriptions: Record<OID, string> = {
   [OID.Etc]: "",
   [OID.BrokenWeapon]: "",
 }
+
 export const O_ID = OID;
 export type O_ID = OID;
 export const BuiltIn_OID = OID;
 export type BuiltIn_OID = OID;
+
+export const SurvivalRankOids: readonly string[] = [
+  OID.Deep, OID.John, OID.Henry, OID.Rudolf, OID.Louis,
+  OID.Firen, OID.Freeze, OID.Dennis, OID.Woody, OID.Davis,
+]

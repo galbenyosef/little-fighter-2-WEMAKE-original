@@ -47,6 +47,56 @@ export function is_mobile_device(device_type: ToyDeviceType): boolean {
   return device_type === 'phone' || device_type === 'tablet'
 }
 
+/** 生存排行使用的榜位（1~3，含义自定；见 docs/dev/Toy JS SDK.md） */
+export const SURVIVAL_RANK_BOARD = 1
+
+/** 上报分数到排行榜；仅在 Toy 环境 + 能力可用时返回 true（失败静默） */
+export async function submit_rank_score(
+  score: number,
+  board: number = SURVIVAL_RANK_BOARD,
+): Promise<boolean> {
+  const toy = get_toy()
+  if (!toy?.submitScore) return false
+  if (!(await toy_capable('submitScore'))) return false
+  try {
+    await toy.submitScore({ board, score })
+    return true
+  } catch (e) {
+    console.warn(LOG_TAG, `submitScore(board=${board}, score=${score}) 失败`, e)
+    return false
+  }
+}
+
+/** 读取榜单（游客可读） */
+export async function get_rank_list(
+  opts: { board?: number; period?: ToyRankPeriod; limit?: number } = {},
+): Promise<ToyRankItem[]> {
+  const toy = get_toy()
+  if (!toy?.getRankList) return []
+  if (!(await toy_capable('getRankList'))) return []
+  try {
+    return await toy.getRankList({ board: SURVIVAL_RANK_BOARD, ...opts })
+  } catch (e) {
+    console.warn(LOG_TAG, 'getRankList 失败', e)
+    return []
+  }
+}
+
+/** 查询我在榜单的排名（未上榜 ranked=false） */
+export async function get_my_rank(
+  opts: { board?: number; period?: ToyRankPeriod } = {},
+): Promise<ToyMyRank | null> {
+  const toy = get_toy()
+  if (!toy?.getMyRank) return null
+  if (!(await toy_capable('getMyRank'))) return null
+  try {
+    return await toy.getMyRank({ board: SURVIVAL_RANK_BOARD, ...opts })
+  } catch (e) {
+    console.warn(LOG_TAG, 'getMyRank 失败', e)
+    return null
+  }
+}
+
 function already_immersive_landscape(state: ToyContainerState): boolean {
   return state.orientation === 'landscape' && !!state.immersive
 }

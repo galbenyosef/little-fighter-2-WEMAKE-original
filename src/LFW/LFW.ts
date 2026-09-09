@@ -28,6 +28,22 @@ import { is_str } from './utils/type_check/is_str';
 import { World } from "./World";
 import { ZipMgr, type ILoadedZip } from "./ZipMgr";
 
+/** 生存排行周期 */
+export type SurvivalRankPeriod = 'all' | 'month' | 'week' | 'day'
+
+/** 生存排行榜单条目（轻量，仅展示用） */
+export interface SurvivalRankItem {
+  rank: number
+  score: number
+  nickname: string
+}
+
+/** 我的生存排行成绩（未上榜为 null） */
+export interface SurvivalRankMy {
+  rank: number
+  score: number
+}
+
 const DEFAULT_INFO: Readonly<IGameZipInfo> = {
   type: "FULL",
   version: 0,
@@ -192,6 +208,33 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
 
   first_ui: string = 'init';
   readonly _keys: Keys[] = [];
+
+  /** 是否运行在 B站 Toy 容器环境（由外部 App 注入；主菜单“生存排行”入口仅在此环境显示） */
+  toy_env: boolean = false;
+  /** B站生存排行模式：开启时每进入一个新的 Survival 阶段触发 on_survival_rank_phase */
+  survival_rank_mode: boolean = false;
+  /** 每进入一个 Survival 阶段时回调（phase_reached = 当前所在阶段数，从 1 起） */
+  on_survival_rank_phase?: (phase_reached: number) => void;
+  /** 读取生存排行（外部按环境注入；未注入表示不可用/不显示） */
+  survival_rank_list?: (opts: { period?: SurvivalRankPeriod; limit?: number }) => Promise<SurvivalRankItem[]>;
+  /** 查询我的生存排名（外部按环境注入） */
+  survival_rank_my?: (opts: { period?: SurvivalRankPeriod }) => Promise<SurvivalRankMy | null>
+  /** B站生存排行：是否使用了秘籍（任一 cheat code） */
+  get survival_rank_cheated(): boolean {
+    return (
+      this.is_cheat(D.CheatEnum.LF2_NET) ||
+      this.is_cheat(D.CheatEnum.HERO_FT) ||
+      this.is_cheat(D.CheatEnum.GIM_INK)
+    )
+  }
+  /** B站生存排行：是否添加了额外模组（基础数据包只有 2 个） */
+  get survival_rank_modded(): boolean {
+    return LFW.ZIPS.length > 2
+  }
+  /** B站生存排行：本局是否因“使用秘籍/额外模组”而不会被计入排行榜 */
+  get survival_rank_invalid(): boolean {
+    return this.survival_rank_cheated || this.survival_rank_modded
+  }
 
   cmds: string[] = [];
   events: UI.LFWKeyEvent[] = [];

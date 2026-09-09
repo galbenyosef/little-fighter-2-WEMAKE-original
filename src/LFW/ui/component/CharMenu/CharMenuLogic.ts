@@ -26,6 +26,8 @@ export interface ICharMenuLogicProps {
   min_player?: number;
   max_player?: number;
   teams?: string[];
+  /** 限定可选角色 OID 列表（如 B站生存排行只允许主线斗士） */
+  oids?: string[];
 }
 /**
  * 角色选择逻辑
@@ -40,6 +42,7 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
     min_player: { type: Number, nullable: true },
     max_player: { type: Number, nullable: true },
     teams: { type: Array, items: String, nullable: true },
+    oids: { type: Array, items: String, nullable: true },
   };
   readonly prev_players = new Map<PlayerInfo, SlotState>()
   readonly players = new Map<PlayerInfo, SlotState>()
@@ -59,11 +62,36 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
   get teams(): string[] { return this.props.teams ?? Defines.Teams.map(v => v.toString()) }
   set teams(v: string[]) { this.props.teams = v }
 
+  get oids(): string[] | undefined { return this.props.oids }
+  set oids(v: string[] | undefined) {
+    this.props.oids = v
+    // 限制名单变化后重建随机池，保证“随机”也从限制名单内挑
+    if (this._randoming_ready) {
+      this.rebuild_randoming()
+      this.handle_fighters_changed()
+    }
+  }
+
+  /** 限制在指定 OID 列表内 */
+  protected filter_oids(list: readonly IEntityData[]): IEntityData[] {
+    const { oids } = this;
+    if (!oids?.length) return [...list];
+    return list.filter(v => oids.includes('' + v.id))
+  }
+
+  protected _randoming_ready: boolean = false
+  /** 重建随机池（默认从 Regular 组 + oids 限制内挑选） */
+  protected rebuild_randoming(): void {
+    const fighters = this.filter_oids(this.lfw.datas.get_fighters_of_group(EG.Regular))
+    this._randoming = new Randoming(`charmenu_fighter_randoming`, fighters, this.lfw.mt)
+    this._randoming_ready = true
+  }
+
   get fighters(): readonly IEntityData[] {
     const cheat_0 = this.lfw.is_cheat(CheatEnum.LF2_NET);
     const cheat_1 = this.lfw.is_cheat(CheatEnum.GIM_INK);
     const all = this.lfw.datas.fighters;
-    if (cheat_0 && cheat_1) return all
+    if (cheat_0 && cheat_1) return this.filter_oids(all)
     const ret = all.filter(v => {
       if (!cheat_0 && v.base.group?.some(v => v == EG.Hidden))
         return false;
@@ -71,7 +99,7 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
         return false;
       return true
     })
-    return ret.length ? ret : all;
+    return this.filter_oids(ret.length ? ret : all);
   }
   protected _lf2_callbacks: ILFWCallback = {
     on_cheat_changed: (cheat_name, enabled) => {
@@ -86,8 +114,7 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
   slots: ISlotPack[] = []
   override on_start(): void {
     super.on_start?.();
-    const fighters = this.lfw.datas.get_fighters_of_group(EG.Regular)
-    this._randoming = new Randoming(`charmenu_fighter_randoming`, fighters, this.lfw.mt)
+    this.rebuild_randoming()
     this.lfw.callbacks.add(this._lf2_callbacks)
     const heads = this.node.search_components(CharMenuHead)
     const p_nam = this.node.search_components(CharMenuPlayerName)

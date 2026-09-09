@@ -1,6 +1,8 @@
 [
   "ui/bg_l_face.ui.json5",
   "ui/bg_r_face.ui.json5",
+  "ui/bilibili_survival_char_menu.ui.json5",
+  "ui/bilibili_survival_prepare_page.ui.json5",
   "ui/center_pause_label.ui.json5",
   "ui/char_menu.ui.json5",
   "ui/danmu_game_page.ui.json5",

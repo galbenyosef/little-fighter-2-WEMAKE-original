@@ -42,6 +42,22 @@ interface ToyContainerState {
   changedFields: string[]
 }
 
+/** Toy 排行榜周期 */
+declare type ToyRankPeriod = 'all' | 'month' | 'week' | 'day'
+/** Toy 排行榜条目 */
+interface ToyRankItem {
+  rank: number
+  score: number
+  nickname: string
+  avatar: string
+}
+/** Toy 我的排名查询结果 */
+interface ToyMyRank {
+  ranked: boolean
+  rank: number
+  score: number
+}
+
 /** B站 Toy JS SDK 全局对象（仅声明本项目用到的能力） */
 interface ToySDK {
   isSupport?(ability: string): Promise<boolean>
@@ -52,6 +68,9 @@ interface ToySDK {
     immersive?: boolean
   }): Promise<void>
   onContainerChange?(listener: (state: ToyContainerState) => void): () => void
+  submitScore?(req: { board?: number; score: number }): Promise<{ score: number }>
+  getRankList?(req?: { board?: number; period?: ToyRankPeriod; limit?: number }): Promise<ToyRankItem[]>
+  getMyRank?(req?: { board?: number; period?: ToyRankPeriod }): Promise<ToyMyRank>
 }
 declare const VERSION_NAME: string;
 declare const GIT_COMMIT_ID: string;

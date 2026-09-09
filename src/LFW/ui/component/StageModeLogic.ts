@@ -5,6 +5,7 @@ import type { Stage } from "../../stage";
 import type { IStageCallbacks } from "../../stage/IStageCallbacks";
 import { Times } from "../../utils/Times";
 import type { IUIKeyEvent } from "../IUIKeyEvent";
+import type { UINode } from "../UINode";
 import { ComponentsPlayer } from "./ComponentsPlayer";
 import { FighterStatBar } from "./FighterStatBar";
 import { GameModeFSMState, GameModeFSMState_BeforeEnd, GameModeFSMState_End, GameModeFSMState_Running } from "./GameModeFSMState";
@@ -22,6 +23,8 @@ export class StageModeLogic extends UIComponent {
   jalousie?: Jalousie;
   gogogo?: ComponentsPlayer;
   gogogo_loop?: ComponentsPlayer;
+  protected rank_hint_cheat?: UINode | null;
+  protected rank_hint_mods?: UINode | null;
   protected weapon_drop_timer = new Times(0, 1200);
   protected world_callbacks: IWorldCallbacks = {
     on_stage_change: (stage, prev) => {
@@ -44,6 +47,14 @@ export class StageModeLogic extends UIComponent {
       prev: IStagePhaseInfo | undefined,
     ) => {
       this.debug('on_phase_changed', stage, curr, prev)
+      if (
+        this.lfw.survival_rank_mode &&
+        !this.lfw.survival_rank_invalid &&
+        stage.data.chapter === 'survival' &&
+        this.lfw.on_survival_rank_phase
+      ) {
+        this.lfw.on_survival_rank_phase(stage.phase_idx + 1)
+      }
       if (stage.is_chapter_finish) return;
       if (!prev) {
         this.gogogo?.stop();
@@ -83,6 +94,8 @@ export class StageModeLogic extends UIComponent {
     this.jalousie = this.node.search_component(Jalousie)
     this.gogogo = this.node.search_component(ComponentsPlayer, "play_gogogo")
     this.gogogo_loop = this.node.search_component(ComponentsPlayer, "play_gogogo_loop")
+    this.rank_hint_cheat = this.node.search_node("survival_rank_hint_cheat")
+    this.rank_hint_mods = this.node.search_node("survival_rank_hint_mods")
     for (const [, f] of this.world.puppets) {
       this.world_callbacks.on_fighter_add?.(f)
     }
@@ -119,14 +132,28 @@ export class StageModeLogic extends UIComponent {
     this.world.dataset.infinity_mp = 0;
     this.lfw.world.stage.callbacks.add(this.stage_callbacks);
     this.lfw.world.callbacks.add(this.world_callbacks);
+
+    if (
+      this.lfw.survival_rank_mode &&
+      !this.lfw.survival_rank_invalid &&
+      this.world.stage.data.chapter === 'survival' &&
+      this.lfw.on_survival_rank_phase
+    ) {
+      this.lfw.on_survival_rank_phase(this.world.stage.phase_idx + 1)
+    }
   }
   override on_stop(): void {
+    this.lfw.survival_rank_mode = false
     this.world.clear()
     this.lfw.world.stage.callbacks.del(this.stage_callbacks)
     this.lfw.world.callbacks.del(this.world_callbacks);
   }
 
   override update(dt: number): void {
+    if (this.lfw.survival_rank_mode) {
+      this.rank_hint_cheat?.set_visible(this.lfw.survival_rank_cheated)
+      this.rank_hint_mods?.set_visible(this.lfw.survival_rank_modded)
+    }
     this.lfw.mt.mark = 'stage_mode_weapn_rain';
     if (
       !this.world.paused &&
