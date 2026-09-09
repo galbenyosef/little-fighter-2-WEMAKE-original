@@ -1,5 +1,6 @@
 import type { IStyle } from "../defines";
 import { Ditto } from "../ditto";
+import { ImportError } from "../ditto/importer/ImportError";
 import { LFW } from "../LFW";
 import { floor } from '../utils/math/base';
 import { is_num_arr } from '../utils/type_check/is_num';
@@ -72,38 +73,35 @@ export async function find_ui_template(
 
   let path = template_name.startsWith('@/') ? template_name.replace('@/', 'builtin_data/launch/') : template_name;
 
-  const is_json = path.endsWith('.ui.json5') || path.endsWith('.ui.json');
-  const is_xml = path.endsWith('.ui.xml');
-
-  if (is_xml) {
-    const { data: root } = await lfw.resources.import_xml(path, true);
-    return xml_to_ui_info(root);
+  const ui_exts = ['.ui.json5', '.ui.json', '.ui.xml'] as const;
+  const hit_ext = ui_exts.find(ext => path.endsWith(ext));
+  const base = hit_ext ? path.slice(0, -hit_ext.length) : path;
+  const candidates: string[] = [];
+  if (hit_ext) candidates.push(path);
+  for (const ext of ui_exts) {
+    const candidate = base + ext;
+    if (!candidates.includes(candidate)) candidates.push(candidate);
   }
-  if (is_json) {
-    const { data } = await lfw.resources.import_json<IUIInfo>(path, true);
-    return data;
-  }
-  try {
-    ret = await lfw.resources.import_json<IUIInfo>(path + '.ui.json5', true).then(r => r.data);
-    if (ret && Object.keys(ret).length) return ret;
-  } catch { /* fall through */ }
 
-  try {
-    ret = await lfw.resources.import_json<IUIInfo>(path + '.ui.json', true).then(r => r.data);
-    if (ret && Object.keys(ret).length) return ret;
-  } catch { /* fall through to xml */ }
-
-  try {
-    const { data: root } = await lfw.resources.import_xml(path + '.ui.xml', true);
-    if (root) {
-      ret = xml_to_ui_info(root);
-      if (ret && Object.keys(ret).length) return ret;
+  for (const candidate of candidates) {
+    const is_xml = candidate.endsWith('.ui.xml');
+    try {
+      if (is_xml) {
+        const { data } = await lfw.resources.import_xml(candidate, true);
+        if (!data) continue
+        const ret = xml_to_ui_info(data);
+        if (ret && Object.keys(ret).length) return ret;
+      } else {
+        const { data: ret } = await lfw.resources.import_json<IUIInfo>(candidate, true);
+        if (ret && Object.keys(ret).length) return ret;
+      }
+    } catch (e) {
+      if (!ImportError.is(e)) throw e;
     }
-  } catch (e) {
-    Ditto.warn(`[${TAG}] ui template not found! template_name: ${template_name}, e:${e}`);
   }
 
-  return ret || {};
+  Ditto.warn(`[${TAG}] ui template not found! template_name: ${template_name}`);
+  return {};
 }
 find_ui_template.TAG = 'find_ui_template';
 
