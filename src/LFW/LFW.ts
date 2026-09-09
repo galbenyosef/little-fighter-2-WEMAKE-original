@@ -43,7 +43,7 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
   static readonly DATA_VERSION: number = D.Defines.DATA_VERSION;
   static readonly DATA_TYPE: string = 'DataZip';
   private static _INFO: Readonly<IGameZipInfo> = DEFAULT_INFO;
-  private static _ZIPS: (I.IZip | string)[] = ["prel.zip.json", "data.zip.json"];
+  private static _ZIPS: (I.IZip | string)[] = [...DEFAULT_INFO.paths];
   static get IS_DEFAULT_INFO() { return this._INFO == DEFAULT_INFO; }
   static get INFO(): Readonly<IGameZipInfo> { return this._INFO }
   static set INFO(v: Readonly<IGameZipInfo> | null | undefined) {

@@ -66,5 +66,9 @@ LFW.VERSION_NAME = [
   `${BUILD_TIME}`
 ].filter(v => v).join(' ');
 
+if (typeof BILI_TOY_ZIP_URLS !== 'undefined' && BILI_TOY_ZIP_URLS.length) {
+  LFW.ZIPS = BILI_TOY_ZIP_URLS;
+}
+
 // B站 Toy 环境：App 内手机 / 平板进入时自动请求「沉浸横屏」（非 Toy 环境静默跳过）
 enable_immersive_landscape().catch(() => { })

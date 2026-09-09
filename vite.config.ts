@@ -26,8 +26,12 @@ function isGitDirty(): boolean {
 
 const GIT_COMMIT_ID = getGitCommitId();
 const GIT_COMMIT_DIRTY = isGitDirty();
-export default defineConfig({
-  base: './',
+// bilibili-toy 构建：`vite build --mode bili-toy` → 产物输出到 dist-toy（不覆盖 web 的 dist），
+// 并把默认数据包指向 https://lf.gim.ink/<version>/（版本号取构建时 package.json 的 version，非固定）
+export default defineConfig(({ mode }) => {
+  const is_toy_build = mode === 'bili-toy';
+  return {
+    base: './',
   plugins: [
     react(),
     checker({ typescript: true }),
@@ -45,6 +49,13 @@ export default defineConfig({
     GIT_COMMIT_ID: JSON.stringify(GIT_COMMIT_ID),
     GIT_COMMIT_DIRTY: JSON.stringify(GIT_COMMIT_DIRTY ? "dirty" : ""),
     BUILD_TIME: JSON.stringify(dayjs().format(`YYYY-MM-DD HH:mm:ss`)),
+    // bilibili-toy 构建注入远端数据包地址；其它构建注入 undefined（LFW.ts 回退到同源相对路径）
+    BILI_TOY_ZIP_URLS: is_toy_build
+      ? JSON.stringify([
+        `https://lf.gim.ink/${json.version}/prel.zip.json`,
+        `https://lf.gim.ink/${json.version}/data.zip.json`,
+      ])
+      : 'undefined',
   },
   resolve: {
     alias: {
@@ -62,6 +73,7 @@ export default defineConfig({
   },
 
   build: {
+    outDir: is_toy_build ? 'dist-toy' : 'dist',
     cssCodeSplit: false,
     sourcemap: true,
     rollupOptions: {
@@ -90,4 +102,5 @@ export default defineConfig({
     },
     assetsInlineLimit: 16384
   }
-})
+  };
+});
