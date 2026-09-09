@@ -60,6 +60,7 @@ import img_btn_3_3 from "./assets/btn_3_3.png";
 import img_btn_4_3 from "./assets/btn_4_3.png";
 import { useForage } from "./hooks/useForage";
 import "./init";
+import { is_toy_env } from "./toy_sdk";
 import { DatViewer } from "./pages/dat_viewer/DatViewer";
 import { useWorkspaces } from "./pages/dat_viewer/useWorkspaces";
 import { Networking } from "./pages/network_test/Networking";
@@ -137,6 +138,12 @@ const app_state_version = '2'
 
 
 const is_mobile_container = navigator.userAgent.includes('lfw-mobile-container')
+
+/** 是否运行在 B站 App 内（Toy SDK 生效）的手机/平板容器 */
+const is_toy_mobile_now = () =>
+  is_toy_env() &&
+  ['mobile', 'tablet'].some(v => document.firstElementChild?.classList.contains(v))
+
 function App() {
   const l = useLocation()
   const nav = useNavigate()
@@ -193,6 +200,16 @@ function App() {
 
   const [is_maximised, set_is_maximised] = useState(false);
   const [is_fullscreen, _set_is_fullscreen] = useState(false);
+  const [toy_mobile, set_toy_mobile] = useState(is_toy_mobile_now);
+  useEffect(() => {
+    // B站 App 容器状态为异步写入 <html> 的 mobile/tablet 类，监听变化以同步 UI
+    const html = document.documentElement;
+    const update = () => set_toy_mobile(is_toy_mobile_now());
+    update();
+    const ob = new MutationObserver(update);
+    ob.observe(html, { attributes: true, attributeFilter: ["class"] });
+    return () => ob.disconnect();
+  }, []);
   const { entity_flags, bg_flags } = world_dataset;
 
   useEffect(() => {
@@ -631,7 +648,7 @@ function App() {
         lf2={lfw}
         container={() => ele_game_canvas?.parentElement} />
       <Loading loading={!ui_id} big className={csses.loading_img} />
-      <div className={csses.top_bar}>
+      <div className={classNames(csses.top_bar, { [csses.toy_bar_shift]: toy_mobile })}>
         <div className={csses.wails_drag} />
         <Show show={lfw?.is_cheat(CheatEnum.GIM_INK)}>
           <ToggleImgButton
@@ -678,7 +695,7 @@ function App() {
             src={[img_btn_1_1, img_btn_1_1]}
           />
         </Show>
-        <Show show={!is_mobile_container && (window as any).first_ui != 'init_demo'}>
+        <Show show={!is_mobile_container && !toy_mobile && (window as any).first_ui != 'init_demo'}>
           <ToggleImgButton
             checked={is_fullscreen}
             onClick={() => toggle_fullscreen()}

@@ -55,8 +55,11 @@
       background-color : #88888800;
       transition       : background-color 255ms;
 
-      &:hover {
-        background-color: #88888855;
+      // 拖拽层 hover 仅用于桌面窗口拖拽提示，触屏不应用（避免点击残留）
+      @media (hover: hover) {
+        &:hover {
+          background-color: #88888855;
+        }
       }
     }
 
@@ -66,10 +69,24 @@
       padding          : 0px;
       transform        : scale(0.6, 0.6);
       transition       : all 255ms;
+
+      // 触屏/无悬停设备：点击后不残留 hover（否则会一直保持放大，需再点别处才还原）
+      @media (hover: hover) {
+        &:hover {
+          transform: scale(0.8, 0.8);
+        }
+      }
+
+      // 触屏按下即时反馈，抬手立即还原
+      &:active {
+        transform: scale(0.8, 0.8);
+      }
     }
 
-    button:hover {
-      transform: scale(0.8, 0.8);
+    // B站 App 内手机/平板：为 toy 平台右上角自带按钮让位，
+    // 顶部按钮组整体左移约 2.5 个按钮宽度（32px × scale 0.6 ≈ 19.2px/个 → ≈ 48px）
+    &.toy_bar_shift {
+      padding-right: 48px;
     }
   }
 }
