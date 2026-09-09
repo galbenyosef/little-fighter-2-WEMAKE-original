@@ -1,0 +1,242 @@
+{
+  "id": "alignment_demo_1",
+  "name": "COMPONENT DEMO: alignment 1",
+  "color": "rgba(255,0,0,1)",
+  "templates": {
+    "qube": {
+      "color": "rgba(0,0,255,1)",
+      "size": "80,80",
+      "center": "0.9,0.5"
+    },
+    "text": {
+      "color": "rgba(255,255,255,1)",
+      "center": "0.5,0.5"
+    }
+  },
+  "items": [
+    {
+      "template": "qube",
+      "id": "lt",
+      "items": [
+        {
+          "template": "text",
+          "i18n": "left=left\ntop=top"
+        }
+      ],
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "left",
+            "top": "top",
+            "offset": {
+              "l": 10,
+              "t": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "id": "rt",
+      "items": [
+        {
+          "template": "text",
+          "i18n": "right=right\ntop=top"
+        }
+      ],
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "right": "right",
+            "top": "top",
+            "offset": {
+              "r": -10,
+              "t": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "id": "rb",
+      "items": [
+        {
+          "template": "text",
+          "i18n": "right=right\nbottom=bottom"
+        }
+      ],
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "right": "right",
+            "bottom": "bottom",
+            "offset": {
+              "r": -10,
+              "b": -10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "id": "lb",
+      "items": [
+        {
+          "template": "text",
+          "i18n": "left=left\nbottom=bottom"
+        }
+      ],
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "left",
+            "bottom": "bottom",
+            "offset": {
+              "l": 10,
+              "b": -10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "id": "tttt",
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "right",
+            "right": "left",
+            "top": "top",
+            "followed": {
+              "l": "id:lt",
+              "r": "id:rt"
+            },
+            "offset": {
+              "l": 10,
+              "r": -10,
+              "b": -10,
+              "t": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "id": "llll",
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "left",
+            "top": "bottom",
+            "bottom": "top",
+            "followed": {
+              "t": "id:lt",
+              "b": "id:lb"
+            },
+            "offset": {
+              "l": 10,
+              "r": -10,
+              "b": -10,
+              "t": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "center": "0.1,0.9",
+      "size": "120,80",
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "mid",
+            "top": "bottom",
+            "followed": {
+              "l": "id:tttt",
+              "t": "id:tttt"
+            },
+            "offset": {
+              "t": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "center": "0.9,0.2",
+      "color": "rgba(255,255,0,1)",
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "mid",
+            "top": "bottom",
+            "followed": {
+              "l": "id:tttt",
+              "t": "id:tttt"
+            },
+            "offset": {
+              "t": 20
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "center": "0.1,0.9",
+      "size": "80,120",
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "right",
+            "top": "mid",
+            "followed": {
+              "l": "id:llll",
+              "t": "id:llll"
+            },
+            "offset": {
+              "l": 10
+            }
+          }
+        }
+      ]
+    },
+    {
+      "template": "qube",
+      "center": "0.9,0.2",
+      "color": "rgba(255,255,0,1)",
+      "component": [
+        {
+          "cls": "Alignment",
+          "properties": {
+            "left": "right",
+            "top": "mid",
+            "followed": {
+              "l": "id:llll",
+              "t": "id:llll"
+            },
+            "offset": {
+              "l": 20
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

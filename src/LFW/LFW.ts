@@ -496,7 +496,7 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
     this._loading = true;
     this.callbacks.call("on_loading_start");
     if (is_first) {
-      const { data } = await this.resources.import_json("builtin_data/launch/strings.json5")
+      const { data } = await this.resources.import_json("builtin_data/launch/strings.json")
       check()
       this._i18n.add(data)
 
@@ -645,7 +645,7 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
 
   protected async load_builtin_ui(): Promise<UI.ICookedUIInfo[]> {
     const check = this.dispose_guard('load_builtin_ui');
-    const { data: paths } = await this.resources.import_json<string[]>("builtin_data/launch/_index.json5")
+    const { data: paths } = await this.resources.import_json<string[]>("builtin_data/launch/_index.json")
     const ret: UI.ICookedUIInfo[] = []
     for (const path of paths) {
       const cooked_ui_info = await UI.cook_ui_info(this, path);

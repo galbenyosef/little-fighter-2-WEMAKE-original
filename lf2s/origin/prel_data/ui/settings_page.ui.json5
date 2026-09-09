@@ -14,7 +14,7 @@
   ],
   items: [
     {
-      template: "builtin_data/launch/bg.ui.json5",
+      template: "builtin_data/launch/bg.ui.json",
       color: "#00000033",
       opacity: 0.9,
     },
@@ -37,7 +37,7 @@
           items: [
             {
               id: "btn_exit_settings",
-              template: "builtin_data/launch/main_text_button.ui.json5",
+              template: "builtin_data/launch/main_text_button.ui.json",
               values: {
                 text: "exit_settings",
               },
@@ -47,14 +47,14 @@
             },
             {
               id: "btn_misc_settings",
-              template: "builtin_data/launch/main_text_button.ui.json5",
+              template: "builtin_data/launch/main_text_button.ui.json",
               values: {
                 text: "misc_settings",
               },
             },
             {
               id: "btn_ctrl_settings",
-              template: "builtin_data/launch/main_text_button.ui.json5",
+              template: "builtin_data/launch/main_text_button.ui.json",
               values: {
                 text: "ctrl_settings",
               },

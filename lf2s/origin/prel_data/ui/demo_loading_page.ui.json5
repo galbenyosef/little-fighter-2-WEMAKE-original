@@ -66,7 +66,7 @@
         click: [ "sound(ok)", "link_to(https://lf.gim.ink)" ],
       },
     },
-    "builtin_data/launch/version_name.ui.json5",
-    "builtin_data/launch/extra_zips.ui.json5",
+    "builtin_data/launch/version_name.ui.json",
+    "builtin_data/launch/extra_zips.ui.json",
   ],
 }

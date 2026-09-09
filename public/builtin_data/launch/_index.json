@@ -1,0 +1,11 @@
+[
+  "builtin_data/launch/comonent_demo/alignment_1.ui.json",
+  "builtin_data/launch/comonent_demo/scroll_demo.ui.json",
+  "builtin_data/launch/comonent_demo/scroll_h_demo.ui.json",
+  "builtin_data/launch/bg.ui.json",
+  "builtin_data/launch/loading_anim.ui.json",
+  "builtin_data/launch/main_text_button.ui.json",
+  "builtin_data/launch/menu_text_button.ui.json",
+  "builtin_data/launch/init_demo.ui.json",
+  "builtin_data/launch/init.ui.json"
+]

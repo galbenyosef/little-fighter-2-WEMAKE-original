@@ -5,11 +5,11 @@
   pos: "0,0,-450",
   component: ["ReachableGroup(main,ud)", "LittleFunnyAutoGame"],
   items: [
-    "builtin_data/launch/bg.ui.json5",
+    "builtin_data/launch/bg.ui.json",
     "ui/bg_l_face.ui.json5",
     "ui/bg_r_face.ui.json5",
-    "builtin_data/launch/version_name.ui.json5",
-    "builtin_data/launch/extra_zips.ui.json5",
+    "builtin_data/launch/version_name.ui.json",
+    "builtin_data/launch/extra_zips.ui.json",
     {
       id: "main_title",
       img: {
@@ -45,7 +45,7 @@
           size: "200,22",
           center: "0.5, 0.5",
           auto_focus: true,
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           values: {
             text: "main_page.vs_mode",
           },
@@ -58,7 +58,7 @@
           id: "btn_stage_mode",
           center: "0.5, 0.5",
           size: "200,22",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           values: {
             text: "main_page.stage_mode",
           },
@@ -71,7 +71,7 @@
           id: "btn_1v1_championship_mode",
           size: "200,22",
           center: "0.5, 0.5",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           visible: false,
           values: {
             text: "main_page.1v1_championship_mode",
@@ -85,7 +85,7 @@
           id: "btn_2v2_championship_mode",
           size: "200,22",
           center: "0.5, 0.5",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           visible: false,
           values: {
             text: "main_page.2v2_championship_mode",
@@ -99,7 +99,7 @@
           id: "btn_battle_mode",
           size: "200,22",
           center: "0.5, 0.5",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           visible: false,
           values: {
             text: "main_page.battle_mode",
@@ -113,7 +113,7 @@
           id: "btn_demo_mode",
           center: "0.5, 0.5",
           size: "200,22",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           values: {
             text: "main_page.demo_mode",
           },
@@ -127,7 +127,7 @@
           visible: false,
           center: "0.5, 0.5",
           size: "200,22",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           values: {
             text: "main_page.danmu_game_mode",
           },
@@ -140,7 +140,7 @@
           id: "btn_test_cases",
           center: "0.5, 0.5",
           size: "200,22",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           values: {
             text: "main_page.test_cases",
           },
@@ -153,7 +153,7 @@
           id: "btn_quit",
           size: "200,22",
           center: "0.5, 0.5",
-          template: "builtin_data/launch/main_text_button.ui.json5",
+          template: "builtin_data/launch/main_text_button.ui.json",
           values: {
             text: "main_page.quit",
           },

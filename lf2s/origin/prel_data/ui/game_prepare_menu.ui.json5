@@ -34,7 +34,7 @@
       items: [
         {
           id: "btn_fight",
-          template: "builtin_data/launch/menu_text_button.ui.json5",
+          template: "builtin_data/launch/menu_text_button.ui.json",
           values: {
             text: "game_prepare_menu.fight",
           },
@@ -45,7 +45,7 @@
         },
         {
           id: "btn_reset_all",
-          template: "builtin_data/launch/menu_text_button.ui.json5",
+          template: "builtin_data/launch/menu_text_button.ui.json",
           values: {
             text: "game_prepare_menu.reset_all",
           },
@@ -57,7 +57,7 @@
         {
           id: "btn_update_random",
           auto_focus: true,
-          template: "builtin_data/launch/menu_text_button.ui.json5",
+          template: "builtin_data/launch/menu_text_button.ui.json",
           values: {
             text: "game_prepare_menu.reset_random",
           },
@@ -82,7 +82,7 @@
           items: [
             {
               id: "btn_switch_bg",
-              template: "builtin_data/launch/menu_text_button.ui.json5",
+              template: "builtin_data/launch/menu_text_button.ui.json",
               values: {
                 text: "game_prepare_menu.background",
               },
@@ -130,7 +130,7 @@
           items: [
             {
               id: "btn_switch_stage",
-              template: "builtin_data/launch/menu_text_button.ui.json5",
+              template: "builtin_data/launch/menu_text_button.ui.json",
               values: {
                 text: "game_prepare_menu.stage",
               },
@@ -177,7 +177,7 @@
           items: [
             {
               id: "btn_difficulty",
-              template: "builtin_data/launch/menu_text_button.ui.json5",
+              template: "builtin_data/launch/menu_text_button.ui.json",
               values: {
                 text: "game_prepare_menu.difficulty",
               },
@@ -210,7 +210,7 @@
         },
         {
           id: "btn_exit",
-          template: "builtin_data/launch/menu_text_button.ui.json5",
+          template: "builtin_data/launch/menu_text_button.ui.json",
           values: {
             text: "game_prepare_menu.exit",
           },

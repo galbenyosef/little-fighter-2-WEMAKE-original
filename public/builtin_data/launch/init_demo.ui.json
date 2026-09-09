@@ -1,0 +1,226 @@
+{
+  "name": "页面：Demo启动页",
+  "id": "init_demo",
+  "color": "rgb(16, 32, 108)",
+  "size": "794, 794",
+  "component": [
+    {
+      "cls": "LaunchPage",
+      "properties": {
+        "entry": "demo_loading",
+        "loading_anim": "loading_anim",
+        "tap_to_launch": "tap_to_launch",
+        "sound_warning": "sound_warning",
+        "yeonface": "yeonface",
+        "bearface": "bearface",
+        "long_text": "long_text"
+      }
+    }
+  ],
+  "items": [
+    "builtin_data/launch/bg.ui.json",
+    "builtin_data/launch/version_name.ui.json",
+    "builtin_data/launch/extra_zips.ui.json",
+    {
+      "id": "demo_play_link",
+      "i18n": "Click here to visit & play it: https://lf.gim.ink",
+      "outlineColor": "#005A8E",
+      "outlineWidth": 1,
+      "outlineAlpha": 1,
+      "style": {
+        "underline_color": "white",
+        "underline_width": 1,
+        "font": "9px Arial"
+      },
+      "center": "0.5, 0",
+      "pos": "400, 0",
+      "actions": {
+        "click": [
+          "sound(ok)",
+          "link_to(https://lf.gim.ink)"
+        ]
+      }
+    },
+    {
+      "id": "tap_to_launch",
+      "i18n": "init.tap_any_place_to_launch",
+      "style": {
+        "font": "36px Arial",
+        "text_align": "center"
+      },
+      "center": "0.5,0.5",
+      "pos": "397,225,1",
+      "component": [
+        "SineOpacity(0.1, 1, 0.5)",
+        "<fade_out>!FadeOutOpacity(250)"
+      ]
+    },
+    {
+      "id": "sound_warning",
+      "i18n": "init.sound_warning",
+      "style": {
+        "font": "18px Arial",
+        "text_align": "center"
+      },
+      "center": "0.5,0.5",
+      "pos": "397,400,1",
+      "component": [
+        "SineOpacity(0.1, 1, 0.5)",
+        "<fade_out>!FadeOutOpacity(250)"
+      ]
+    },
+    {
+      "id": "bearface",
+      "img": {
+        "path": "!builtin_data/launch/bearface.png",
+        "w": 100,
+        "h": 100
+      },
+      "center": "0.5,0.5",
+      "pos": "397,150,1",
+      "opacity": 0,
+      "scale": "0.2,0.2,0.2",
+      "component": [
+        "!OpacityAnimation(0,1, 0,500, 1,500, 1,2500)",
+        {
+          "id": "scale_in",
+          "cls": "ScaleAnimation",
+          "enabled": false,
+          "args": [
+            0,
+            1,
+            "0.2,0.2,0.2",
+            500,
+            "2,2,2",
+            250,
+            "1,1,1",
+            250
+          ]
+        },
+        {
+          "id": "move_in",
+          "cls": "PositionAnimation",
+          "args": [
+            0,
+            1,
+            "397,150,1",
+            500,
+            "319,150,1",
+            500
+          ]
+        },
+        {
+          "id": "scale_out",
+          "cls": "ScaleAnimation",
+          "enabled": false,
+          "args": [
+            0,
+            1,
+            "1,1,1",
+            500,
+            "0.2,0.2,0.2",
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yeonface",
+      "img": {
+        "path": "!builtin_data/launch/yeonface.png",
+        "w": 100,
+        "h": 100
+      },
+      "center": "0.5,0.5",
+      "pos": "397,150,1",
+      "opacity": 0,
+      "scale": "0.2,0.2,0.2",
+      "component": [
+        "!OpacityAnimation(0,1, 0,500, 1,500, 1,2500)",
+        {
+          "id": "scale_in",
+          "cls": "ScaleAnimation",
+          "args": [
+            0,
+            1,
+            "0.2,0.2,0.2",
+            500,
+            "2,2,2",
+            250,
+            "1,1,1",
+            250
+          ]
+        },
+        {
+          "id": "scale_out",
+          "cls": "ScaleAnimation",
+          "enabled": false,
+          "args": [
+            0,
+            1,
+            "1,1,1",
+            500,
+            "0.2,0.2,0.2",
+            500
+          ]
+        },
+        {
+          "id": "move_in",
+          "cls": "PositionAnimation",
+          "enabled": false,
+          "args": [
+            0,
+            1,
+            "397,150,1",
+            500,
+            "477,150,1",
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "id": "long_text",
+      "i18n": "init.long_description",
+      "style": {
+        "font": "18px Arial",
+        "text_align": "center"
+      },
+      "center": "0.5,0",
+      "pos": "397,150,2",
+      "opacity": 0,
+      "component": [
+        "<opacity>!OpacityAnimation(0,1, 0,500, 1,500, 1,2500)",
+        {
+          "id": "move_in",
+          "cls": "PositionAnimation",
+          "args": [
+            0,
+            1,
+            "397,150,1",
+            500,
+            "397,230,1",
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "template": "builtin_data/launch/loading_anim.ui.json",
+      "id": "loading",
+      "pos": "760, 430"
+    },
+    {
+      "id": "txt_loading_content",
+      "component": [
+        "LoadingContentText(,1000,1000)"
+      ],
+      "pos": "0,0",
+      "center": "0,0",
+      "i18n": "",
+      "style": {
+        "font": "12px Arial"
+      }
+    }
+  ]
+}
