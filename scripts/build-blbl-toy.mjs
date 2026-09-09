@@ -5,14 +5,15 @@
  * 输出: release/bilibili-toy-v<version>.zip
  *
  * 过程: 先把产物目录复制到系统临时目录，所有调整都作用于副本，**不修改原目录**。
- *   1. 移除 favicon.ico 与 lfw.full.zip
- *   2. 将 extension/icon256.png 复制为 icon256.png
- *   3. 替换 index.html 中 favicon.ico 的引用为 icon256.png
- *   4. 压缩副本内容后清理临时目录
+ *   1. 移除所有 *.zip 与 *.zip.json（prel.zip / data.zip / prel.zip.json / data.zip.json / lfw.full.zip 等），数据包不再内置、改为远端加载
+ *   2. 移除 favicon.ico
+ *   3. 将 extension/icon256.png 复制为 icon256.png
+ *   4. 替换 index.html 中 favicon.ico 的引用为 icon256.png
+ *   5. 压缩副本内容后清理临时目录
  */
 
 import { zip } from 'compressing';
-import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -36,7 +37,23 @@ const STAGE_DIR = mkdtempSync(join(tmpdir(), 'bilibili-toy-'));
 console.log(`[build-blbl-toy] 复制 ${DIST_NAME} 到临时目录 ${STAGE_DIR}`);
 cpSync(DIST_DIR, STAGE_DIR, { recursive: true });
 
-// 2. bilibili Toy 图标调整（作用于副本）
+// 2. 移除数据包相关文件（prel.zip / data.zip / prel.zip.json / data.zip.json / lfw.full.zip 等）：
+//    blbl 不再内置数据包，改为加载远端 https://lf.gim.ink/<version>/（见 vite.config.ts bili-toy 注入）
+const zip_files = [];
+(function collect_zips(dir) {
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    const st = statSync(full);
+    if (st.isDirectory()) collect_zips(full);
+    else if (name.toLowerCase().endsWith('.zip') || name.toLowerCase().endsWith('.zip.json')) zip_files.push(full);
+  }
+})(STAGE_DIR);
+for (const f of zip_files) {
+  rmSync(f);
+  console.log(`[build-blbl-toy] 移除数据包相关文件: ${f}`);
+}
+
+// 3. bilibili Toy 图标调整（作用于副本）
 const faviconPath = join(STAGE_DIR, 'favicon.ico');
 const icon256Path = join(STAGE_DIR, 'icon256.png');
 const srcIcon256 = join(ROOT, 'extension', 'icon256.png');
@@ -44,12 +61,6 @@ const srcIcon256 = join(ROOT, 'extension', 'icon256.png');
 if (existsSync(faviconPath)) {
   rmSync(faviconPath);
   console.log('[build-blbl-toy] 移除 favicon.ico');
-}
-
-const fullZipPath = join(STAGE_DIR, 'lfw.full.zip');
-if (existsSync(fullZipPath)) {
-  rmSync(fullZipPath);
-  console.log('[build-blbl-toy] 移除 lfw.full.zip');
 }
 
 if (existsSync(srcIcon256)) {
@@ -69,7 +80,7 @@ if (existsSync(htmlPath)) {
   }
 }
 
-// 3. 压缩副本内容
+// 4. 压缩副本内容
 const OUT_ZIP = join(ROOT, 'release', `bilibili-toy-v${pkg.version}.zip`);
 mkdirSync(dirname(OUT_ZIP), { recursive: true });
 
@@ -77,6 +88,6 @@ console.log(`[build-blbl-toy] 压缩 ${DIST_NAME} 内容 -> ${OUT_ZIP}`);
 // ignoreBase: true 使副本内的文件/目录直接位于 zip 根目录
 await zip.compressDir(STAGE_DIR, OUT_ZIP, { ignoreBase: true });
 
-// 4. 清理临时目录
+// 5. 清理临时目录
 rmSync(STAGE_DIR, { recursive: true, force: true });
 console.log(`[build-blbl-toy] ✅ 完成: ${OUT_ZIP}（${DIST_NAME} 未被修改）`);

@@ -49,8 +49,9 @@ export default defineConfig(({ mode }) => {
     GIT_COMMIT_ID: JSON.stringify(GIT_COMMIT_ID),
     GIT_COMMIT_DIRTY: JSON.stringify(GIT_COMMIT_DIRTY ? "dirty" : ""),
     BUILD_TIME: JSON.stringify(dayjs().format(`YYYY-MM-DD HH:mm:ss`)),
-    // bilibili-toy 构建注入远端数据包地址；其它构建注入 undefined（LFW.ts 回退到同源相对路径）
-    BILI_TOY_ZIP_URLS: is_toy_build
+    // 构建期注入的默认数据包地址：当前 bilibili-toy 构建注入远端 URL；其它构建为 undefined，
+    // init.ts 在未注入时回退到同源相对路径
+    DATA_ZIP_URLS: is_toy_build
       ? JSON.stringify([
         `https://lf.gim.ink/${json.version}/prel.zip.json`,
         `https://lf.gim.ink/${json.version}/data.zip.json`,

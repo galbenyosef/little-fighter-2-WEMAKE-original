@@ -66,8 +66,10 @@ LFW.VERSION_NAME = [
   `${BUILD_TIME}`
 ].filter(v => v).join(' ');
 
-if (typeof BILI_TOY_ZIP_URLS !== 'undefined' && BILI_TOY_ZIP_URLS.length) {
-  LFW.ZIPS = BILI_TOY_ZIP_URLS;
+// 构建期注入的默认数据包地址（见 vite.config.ts）：当前 bilibili-toy 构建注入远端
+// https://lf.gim.ink/<package.json 版本>/... ，页面不托管数据包时用于覆盖默认数据包
+if (typeof DATA_ZIP_URLS !== 'undefined' && DATA_ZIP_URLS.length) {
+  LFW.ZIPS = DATA_ZIP_URLS;
 }
 
 // B站 Toy 环境：App 内手机 / 平板进入时自动请求「沉浸横屏」（非 Toy 环境静默跳过）
