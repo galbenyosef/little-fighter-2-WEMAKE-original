@@ -114,7 +114,10 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
       .then(([rank_list, mine]) => {
         const entries = (rank_list ?? []).slice(0, RANK_LIMIT)
         const empty = entries.length === 0
-        const shown = empty ? 1 : entries.length
+        // 调试：?rank_rows=N 只填充前 N 行（其余行隐藏、不填字），用于对照“行数/文本节点数”是否导致掉帧
+        const dbg_rows = /[?&#]rank_rows=(\d+)/i.exec(window.location.href)
+        const cap = dbg_rows ? Math.max(0, Number(dbg_rows[1])) : entries.length
+        const shown = empty ? 1 : Math.min(cap, entries.length)
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i]
           const visible = i < shown
