@@ -4,6 +4,7 @@ import type { IPropsMeta } from "../../defines/ISchema";
 import { Ditto } from "../../ditto";
 import { StatBarType } from "../../entity/StatBarType";
 import type { ILFWCallback } from "../../ILFWCallback";
+import type { SurvivalRankBoardData } from "../../LFW";
 import { WorldDataset } from "../../WorldDataset";
 import type { UINode } from "../UINode";
 import { BackgroundSwitcher } from "./BackgroundSwitcher";
@@ -23,6 +24,8 @@ const RANK_PERIODS = ['all', 'month', 'week', 'day'] as const
 type RankPeriod = typeof RANK_PERIODS[number]
 /** 单次展示的榜单条数（SDK limit 上限约 100） */
 const RANK_LIMIT = 100
+/** 请求外部(宿主)按当前周期拉取生存排行；外部拉到后经 set_survival_rank_data 下发 */
+const BROADCAST_RANK_REQUEST = 'rank_request'
 /** 榜单行高与行间距（列表不使用 Flex，行位置由 GamePrepareLogic 固定） */
 const RANK_ROW_H = 24
 const RANK_ROW_GAP = 8
@@ -78,7 +81,7 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
     }
   }
 
-  /** 生存排行准备页：左侧选角、右侧展示排行榜（无注入的读取器时隐藏） */
+  /** 生存排行准备页：左侧选角、右侧展示排行榜（外部未注入数据能力时隐藏） */
   protected refresh_survival_rank(): void {
     if (this.props.game_mode !== GAME_MODE_BILI_SURVIVAL) return
     this.layout_rank_rows()
@@ -89,63 +92,70 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
     const list = this.node.search_node("survival_rank_list")
     const my_node = this.node.search_node("survival_rank_my")
     if (!title && !scroll && !list) return
-    const fetch_rank = this.lfw.survival_rank_list
-    const fetch_my = this.lfw.survival_rank_my
-    const show = !!(fetch_rank || fetch_my)
-    title?.set_visible(show)
-    tabs?.set_visible(show)
-    refresh?.set_visible(show)
-    scroll?.set_visible(show)
-    my_node?.set_visible(show)
-    if (!show) {
+    const available = this.lfw.survival_rank_available
+    title?.set_visible(available)
+    tabs?.set_visible(available)
+    refresh?.set_visible(available)
+    scroll?.set_visible(available)
+    my_node?.set_visible(available)
+    if (!available) {
       this.clear_rank_rows()
       this.node.search_node("rank_sel_underline")?.set_visible(false)
       return
     }
     this.update_rank_period_tabs()
-    if (!list) return
+    // 用外部最近一次下发的数据渲染（尚未下发时隐藏全部行）
+    this.render_survival_rank(this.lfw.survival_rank_data)
+    // 请求外部(宿主 App)按当前周期拉取最新数据；数据到达后经 on_survival_rank_changed 更新本页
+    this.lfw.survival_rank_period = this.rank_period
+    this.lfw.broadcast(BROADCAST_RANK_REQUEST)
+  }
+
+  /** 依据外部下发的榜单数据更新各行与“我的排名”（未下发/无榜单列表时隐藏行） */
+  protected render_survival_rank(data?: SurvivalRankBoardData | null): void {
+    if (this.props.game_mode !== GAME_MODE_BILI_SURVIVAL) return
+    const scroll = this.node.search_node("survival_rank_scroll")
+    const list = this.node.search_node("survival_rank_list")
+    const my_node = this.node.search_node("survival_rank_my")
+    if (!data || !list) {
+      this.clear_rank_rows()
+      return
+    }
     const rows = [...list.children]
-    const period_now: RankPeriod = this.rank_period
+    const entries = data.list.slice(0, RANK_LIMIT)
+    const mine = data.mine
+    const empty = entries.length === 0
+    const shown = empty ? 1 : entries.length
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      const visible = i < shown
+      row.set_visible(visible)
+      if (!visible) continue
+      const cells = row.children
+      const cell = (idx: number) => cells[idx]
+      if (empty) {
+        cell(0)?.set_text("", cell(0)?.text?.style)
+        cell(1)?.set_text(this.lfw.string('bilibili_survival.board_empty'), cell(1)?.text?.style)
+        cell(2)?.set_text("", cell(2)?.text?.style)
+        continue
+      }
+      const v = entries[i]!
+      cell(0)?.set_text(`${v.rank}.`, cell(0)?.text?.style)
+      cell(1)?.set_text(v.nickname, cell(1)?.text?.style)
+      cell(2)?.set_text(`${v.score}`, cell(2)?.text?.style)
+    }
+    scroll?.find_component(ScrollView)?.scroll_to_start()
 
-    Promise.all([
-      fetch_rank ? fetch_rank({ period: period_now, limit: RANK_LIMIT }) : Promise.resolve([]),
-      fetch_my ? fetch_my({ period: period_now }) : Promise.resolve(null),
-    ])
-      .then(([rank_list, mine]) => {
-        const entries = (rank_list ?? []).slice(0, RANK_LIMIT)
-        const empty = entries.length === 0
-        const shown = empty ? 1 : entries.length
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i]
-          const visible = i < shown
-          row.set_visible(visible)
-          if (!visible) continue
-          const cells = row.children
-          const cell = (idx: number) => cells[idx]
-          if (empty) {
-            cell(0)?.set_text("", cell(0)?.text?.style)
-            cell(1)?.set_text(this.lfw.string('bilibili_survival.board_empty'), cell(1)?.text?.style)
-            cell(2)?.set_text("", cell(2)?.text?.style)
-            continue
-          }
-          const v = entries[i]!
-          cell(0)?.set_text(`${v.rank}.`, cell(0)?.text?.style)
-          cell(1)?.set_text(v.nickname, cell(1)?.text?.style)
-          cell(2)?.set_text(`${v.score}`, cell(2)?.text?.style)
-        }
-        scroll?.find_component(ScrollView)?.scroll_to_start()
-
-        if (my_node) {
-          const label = this.lfw.string('bilibili_survival.my_rank_label')
-          my_node.set_text(
-            mine
-              ? `${label}：第 ${mine.rank} 名　${mine.score}`
-              : `${label}：${this.lfw.string('bilibili_survival.my_rank_none')}`,
-            my_node.text?.style,
-          )
-        }
-      })
-      .catch(() => { })
+    if (my_node) {
+      my_node.set_visible(true)
+      const label = this.lfw.string('bilibili_survival.my_rank_label')
+      my_node.set_text(
+        mine
+          ? `${label}：第 ${mine.rank} 名　${mine.score}`
+          : `${label}：${this.lfw.string('bilibili_survival.my_rank_none')}`,
+        my_node.text?.style,
+      )
+    }
   }
 
   /** 隐藏所有榜单行与“我的排名” */
@@ -210,6 +220,10 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
         if ((RANK_PERIODS as readonly string[]).includes(p))
           return this.set_survival_rank_period(p)
       }
+    },
+    on_survival_rank_changed: (data) => {
+      if (this.props.game_mode !== GAME_MODE_BILI_SURVIVAL) return
+      this.render_survival_rank(data)
     }
   }
   override on_stop(): void {

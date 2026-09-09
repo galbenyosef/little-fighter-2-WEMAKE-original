@@ -44,6 +44,13 @@ export interface SurvivalRankMy {
   score: number
 }
 
+/** 外部(宿主 App)一次下发的生存排行数据（UI 按此渲染，值变化时更新） */
+export interface SurvivalRankBoardData {
+  period: SurvivalRankPeriod
+  list: SurvivalRankItem[]
+  mine: SurvivalRankMy | null
+}
+
 const DEFAULT_INFO: Readonly<IGameZipInfo> = {
   type: "FULL",
   version: 0,
@@ -215,10 +222,17 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
   survival_rank_mode: boolean = false;
   /** 每进入一个 Survival 阶段时回调（phase_reached = 当前所在阶段数，从 1 起） */
   on_survival_rank_phase?: (phase_reached: number) => void;
-  /** 读取生存排行（外部按环境注入；未注入表示不可用/不显示） */
-  survival_rank_list?: (opts: { period?: SurvivalRankPeriod; limit?: number }) => Promise<SurvivalRankItem[]>;
-  /** 查询我的生存排名（外部按环境注入） */
-  survival_rank_my?: (opts: { period?: SurvivalRankPeriod }) => Promise<SurvivalRankMy | null>
+  /** 外部(宿主 App)是否注入了生存排行数据能力（未注入表示不可用/不显示） */
+  survival_rank_available: boolean = false;
+  /** 当前展示的排行周期（准备页切标签时更新；外部按此周期拉取） */
+  survival_rank_period: SurvivalRankPeriod = 'all';
+  /** 外部最近一次下发的生存排行数据（未下发为 undefined） */
+  survival_rank_data?: SurvivalRankBoardData | null;
+  /** 外部(宿主 App)下发最新排行数据；值变化时通知 on_survival_rank_changed（UI 据此更新） */
+  set_survival_rank_data(data: SurvivalRankBoardData | null): void {
+    this.survival_rank_data = data;
+    this.callbacks.call('on_survival_rank_changed', data, this);
+  }
   /** B站生存排行：是否使用了秘籍（任一 cheat code） */
   get survival_rank_cheated(): boolean {
     return (

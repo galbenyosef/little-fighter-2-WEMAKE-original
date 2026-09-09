@@ -1,5 +1,5 @@
 import type { IZip } from './ditto/zip/IZip';
-import type { LFW } from "./LFW";
+import type { LFW, SurvivalRankBoardData } from "./LFW";
 import type { PlayerInfo } from "./PlayerInfo";
 import type { UIComponent } from "./ui/component/UIComponent";
 import type { ICookedUIInfo } from "./ui/ICookedUIInfo";
@@ -33,6 +33,9 @@ export interface ILFWCallback {
   on_lang_changed?(lang: string, prev: string, lfw: LFW): void;
 
   on_broadcast?(message: string, lfw: LFW): void;
+
+  /** 外部(宿主 App)下发新的生存排行数据（值变化时触发） */
+  on_survival_rank_changed?(data: SurvivalRankBoardData | null, lfw: LFW): void;
 
   on_zips_changed?(zips: IZip[]): void;
 

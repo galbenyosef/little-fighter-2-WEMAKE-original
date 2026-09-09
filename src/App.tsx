@@ -26,7 +26,7 @@ import { BG_INDICATINGS, ENTITY_INDICATINGS } from "./DittoImpl/renderer/INDICAT
 import { WorldRenderer } from "./DittoImpl/renderer/WorldRenderer";
 import EditorView from "./EditorView";
 import GamePad from "./GamePad";
-import { Difficulty, type IWorldDataset, LFW, WorldDataset } from "./LFW";
+import { Difficulty, type IWorldDataset, LFW, WorldDataset, type SurvivalRankPeriod } from "./LFW";
 import { CheatEnum, CtrlDevice } from "./LFW/defines";
 import { CMD } from "./LFW/defines/CMD";
 import { SyncRenderEnum } from "./LFW/defines/SyncRenderEnum";
@@ -94,6 +94,17 @@ const load_files = async (lfw: LFW, files: File[]) => {
     lfw.load(...zips)
     lfw.set_ui({ id: 'loading' })
   }
+}
+
+/** B站生存排行：宿主拉取“榜单+我的排名”后一次性下发（limit≈SDK 上限 100） */
+async function fetch_survival_rank_data(lfw: LFW, period: SurvivalRankPeriod): Promise<void> {
+  const list = await get_rank_list({ board: SURVIVAL_RANK_BOARD, period, limit: 100 })
+  const mine = await get_my_rank({ board: SURVIVAL_RANK_BOARD, period })
+  lfw.set_survival_rank_data({
+    period,
+    list,
+    mine: mine && mine.ranked ? { rank: mine.rank, score: mine.score } : null,
+  })
 }
 
 const ele_root = document.firstElementChild;
@@ -250,6 +261,11 @@ function App() {
         case 'custom_game':
           nav(Paths.All.custom_game)
           break;
+        case 'rank_request':
+          // 生存排行准备页请求数据：宿主拉取后“下发”，UI 值变化时自动更新
+          if (!is_toy_env()) break
+          fetch_survival_rank_data(lfw, lfw.survival_rank_period).catch(() => { })
+          break;
       }
     },
     on_ui_loaded: (ui) => {
@@ -341,13 +357,8 @@ function App() {
         if (lf2.survival_rank_invalid) return
         submit_rank_score(reached).catch(() => { })
       }
-      // 生存排行准备页右侧榜单（Toy 环境才可用；支持周期/我的排名）
-      lf2.survival_rank_list = async ({ period, limit } = {}) =>
-        (await get_rank_list({ board: SURVIVAL_RANK_BOARD, period, limit: limit ?? 10 }))
-      lf2.survival_rank_my = async ({ period } = {}) => {
-        const mine = await get_my_rank({ board: SURVIVAL_RANK_BOARD, period })
-        return mine && mine.ranked ? { rank: mine.rank, score: mine.score } : null
-      }
+      // 生存排行数据由宿主拉取后“下发”(set_survival_rank_data)，UI 侧值变化时更新
+      lf2.survival_rank_available = true
     }
     if (
       location.pathname.endsWith('demo') ||
