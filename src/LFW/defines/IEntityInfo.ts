@@ -24,12 +24,21 @@ export interface IEntityInfo extends Partial<IWorldDataset> {
    * @type {string}
    */
   head?: string;
-
+  
   /**
    * 缩略图
    * @type {string}
    */
   small?: string;
+
+  /**
+   * 背景大头像
+   *
+   * 选角/准备等页面的背景用大幅角色头像图路径；
+   * 缺省时由使用方回退（如 head / 通用底图）。
+   * @type {string}
+   */
+  bg_face?: string;
 
 
   /**
@@ -198,6 +207,7 @@ export const entity_info_fields = fields<IEntityInfo>({
   }),
   head: str('头像'),
   small: str('缩略图'),
+  bg_face: str('背景大头像'),
   group: str('实体组', '实体组', {
     array: true,
     nullable: true,

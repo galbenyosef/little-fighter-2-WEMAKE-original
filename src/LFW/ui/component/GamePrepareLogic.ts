@@ -1,13 +1,16 @@
 import { LocalController } from "../../controller/LocalController";
 import { Defines, FacingFlag, SurvivalRankOids, TeamEnum } from "../../defines";
+import type { IEntityData } from "../../defines";
 import type { IPropsMeta } from "../../defines/ISchema";
 import { Ditto } from "../../ditto";
 import { StatBarType } from "../../entity/StatBarType";
 import type { ILFWCallback } from "../../ILFWCallback";
+import type { SurvivalRankItem, SurvivalRankMy } from "../../LFW";
 import { WorldDataset } from "../../WorldDataset";
 import type { UINode } from "../UINode";
 import { BackgroundSwitcher } from "./BackgroundSwitcher";
 import { CharMenuLogic } from "./CharMenu/CharMenuLogic";
+import { Picture } from "./Picture";
 import { StageSwitcher } from "./StageSwitcher";
 import { ScrollView } from "./ScrollView";
 import { UIComponent } from "./UIComponent";
@@ -26,6 +29,16 @@ const RANK_LIMIT = 100
 /** 榜单行高与行间距（列表不使用 Flex，行位置由 GamePrepareLogic 固定） */
 const RANK_ROW_H = 24
 const RANK_ROW_GAP = 8
+/** 偶数行（排名 2、4、6…）的极淡白色底（斑马纹） */
+const RANK_ROW_EVEN_BG = 'rgba(255,255,255,0.04)'
+/** 未选角色时的背景大头像：Julian（对应 make_fighter_data_julian 的默认） */
+const DEFAULT_BG_FACE = 'sprite/MENU_BACK10.png'
+/** 把词条模板里的 %N 依次替换为参数（%1=第 1 个…）；用于带插值的本地化文案 */
+const i18n_fmt = (template: string, ...args: (string | number)[]): string =>
+  template.replace(/%\d+/g, (m) => {
+    const i = Number(m.slice(1)) - 1
+    return String(args[i] ?? '')
+  })
 export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
   static override readonly TAGS: string[] = ["GamePrepareLogic"];
   static override readonly PROPS: IPropsMeta<IGamePrepareLogicProps> = {
@@ -63,9 +76,39 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
     }
     // 生存排行准备页：右侧刷新排行榜
     this.refresh_survival_rank()
+    // 背景大头像：跟随选角（未选默认 Julian）
+    this.refresh_bg_face()
+  }
+
+  /** 每帧跟随选角刷新背景大头像（无变化时零开销） */
+  override update(dt: number): void {
+    super.update?.(dt)
+    if (this.props.game_mode === GAME_MODE_BILI_SURVIVAL)
+      this.refresh_bg_face()
+  }
+
+  /** 背景大头像：当前选中角色的 bg_face，未选/缺失时回退 Julian */
+  protected refresh_bg_face(): void {
+    const node = this.node.search_node('survival_bg_face')
+    if (!node) return
+    const char_menu_logic = this.node.search_component(CharMenuLogic)
+    const slot = char_menu_logic?.players.values().next().value as
+      | { fighter?: IEntityData | null }
+      | undefined
+    const bg_face = slot?.fighter?.base?.bg_face || DEFAULT_BG_FACE
+    if (bg_face === this._bg_face_cur) return
+    this._bg_face_cur = bg_face
+    node.search_component(Picture)?.set_src(bg_face)
   }
 
   protected rank_period: RankPeriod = 'all'
+  /** 最近一次拉到的榜单/我的成绩与可见状态（语言切换时据此重绘文字，不重新拉取） */
+  protected _rank_entries: SurvivalRankItem[] = []
+  protected _rank_mine: SurvivalRankMy | null = null
+  protected _rank_loaded = false
+  protected _rank_board_shown = false
+  /** 当前应用到的背景大头像（避免每帧重复 set_src） */
+  protected _bg_face_cur = ''
 
   /** 生存排行列表不使用 Flex：把 100 行按固定行距一次性排好（ScrollView 只整体平移列表） */
   protected layout_rank_rows(): void {
@@ -97,6 +140,7 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
     refresh?.set_visible(show)
     scroll?.set_visible(show)
     my_node?.set_visible(show)
+    this._rank_board_shown = show
     if (!show) {
       this.clear_rank_rows()
       this.node.search_node("rank_sel_underline")?.set_visible(false)
@@ -104,7 +148,6 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
     }
     this.update_rank_period_tabs()
     if (!list) return
-    const rows = [...list.children]
     const period_now: RankPeriod = this.rank_period
 
     Promise.all([
@@ -112,40 +155,63 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
       fetch_my ? fetch_my({ period: period_now }) : Promise.resolve(null),
     ])
       .then(([rank_list, mine]) => {
-        const entries = (rank_list ?? []).slice(0, RANK_LIMIT)
-        const empty = entries.length === 0
-        const shown = empty ? 1 : entries.length
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i]
-          const visible = i < shown
-          row.set_visible(visible)
-          if (!visible) continue
-          const cells = row.children
-          const cell = (idx: number) => cells[idx]
-          if (empty) {
-            cell(0)?.set_text("", cell(0)?.text?.style)
-            cell(1)?.set_text(this.lfw.string('bilibili_survival.board_empty'), cell(1)?.text?.style)
-            cell(2)?.set_text("", cell(2)?.text?.style)
-            continue
-          }
-          const v = entries[i]!
-          cell(0)?.set_text(`${v.rank}.`, cell(0)?.text?.style)
-          cell(1)?.set_text(v.nickname, cell(1)?.text?.style)
-          cell(2)?.set_text(`${v.score}`, cell(2)?.text?.style)
-        }
+        this._rank_entries = (rank_list ?? []).slice(0, RANK_LIMIT)
+        this._rank_mine = mine
+        this._rank_loaded = true
+        // 用当前语言填充榜单行/空榜文案/我的排名
+        this.render_rank_rows_text()
         scroll?.find_component(ScrollView)?.scroll_to_start()
-
-        if (my_node) {
-          const label = this.lfw.string('bilibili_survival.my_rank_label')
-          my_node.set_text(
-            mine
-              ? `${label}：第 ${mine.rank} 名　${mine.score}`
-              : `${label}：${this.lfw.string('bilibili_survival.my_rank_none')}`,
-            my_node.text?.style,
-          )
-        }
       })
       .catch(() => { })
+  }
+
+  /**
+   * 用最近一次榜单数据 + 当前语言重绘榜单行/空榜文案/我的排名（含偶数行底色）。
+   * 语言切换时由 on_lang_changed 调用：不重新拉取、不改滚动。
+   */
+  protected render_rank_rows_text(): void {
+    const list = this.node.search_node("survival_rank_list")
+    const my_node = this.node.search_node("survival_rank_my")
+    if (!list || !this._rank_loaded || !this._rank_board_shown) return
+    const rows = [...list.children]
+    const entries = this._rank_entries
+    const empty = entries.length === 0
+    const shown = empty ? 1 : entries.length
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      const visible = i < shown
+      row.set_visible(visible)
+      // 偶数行（i 为 0 基 → 排名 i+1 为偶数）加极淡白底
+      row.color = (i & 1) ? RANK_ROW_EVEN_BG : ''
+      if (!visible) continue
+      const cells = row.children
+      const cell = (idx: number) => cells[idx]
+      if (empty) {
+        cell(0)?.set_text("", cell(0)?.text?.style)
+        cell(1)?.set_text(this.lfw.string('bilibili_survival.board_empty'), cell(1)?.text?.style)
+        cell(2)?.set_text("", cell(2)?.text?.style)
+        continue
+      }
+      const v = entries[i]!
+      cell(0)?.set_text(`${v.rank}.`, cell(0)?.text?.style)
+      cell(1)?.set_text(v.nickname, cell(1)?.text?.style)
+      cell(2)?.set_text(
+        i18n_fmt(this.lfw.string('bilibili_survival.floor_reached'), v.score),
+        cell(2)?.text?.style,
+      )
+    }
+    if (my_node) {
+      my_node.set_text(
+        this._rank_mine
+          ? i18n_fmt(
+            this.lfw.string('bilibili_survival.my_rank_ranked'),
+            this._rank_mine.rank,
+            i18n_fmt(this.lfw.string('bilibili_survival.floor_reached'), this._rank_mine.score),
+          )
+          : this.lfw.string('bilibili_survival.my_rank_unranked'),
+        my_node.text?.style,
+      )
+    }
   }
 
   /** 隐藏所有榜单行与“我的排名” */
@@ -202,6 +268,8 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
   }
 
   protected _lf2_callbacks: ILFWCallback = {
+    // 语言切换：纯词条节点由 LFW.set_lang 自动刷新；这里补刷拼合的榜单文字
+    on_lang_changed: () => this.render_rank_rows_text(),
     on_broadcast: (message) => {
       if (message === 'start_game') return this.start_game();
       if (message === 'rank_refresh') return this.refresh_survival_rank();

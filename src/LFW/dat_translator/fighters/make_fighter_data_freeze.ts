@@ -12,6 +12,7 @@ import { set_hit_flag } from "../set_hit_flag";
  * @return {IEntityData} 
  */
 export function make_fighter_data_freeze(data: IEntityData): IEntityData {
+  data.base.bg_face ??= "sprite/MENU_BACK7.png";
   data.base.group = ensure(data.base.group, EntityGroup.Freezer);
   [
     data.frames["running_0"],

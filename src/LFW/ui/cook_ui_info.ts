@@ -304,11 +304,7 @@ export async function cook_ui_info(
     ret.items = [];
     for (const raw_item of raw_items) {
       const item = await cook_ui_info(lfw, raw_item, ret);
-      let { count = 1 } = item;
-      while (count) {
-        ret.items.push(item);
-        count = floor(count - 1)
-      };
+      ret.items.push(item);
     }
   }
   if (!ret.items?.length)

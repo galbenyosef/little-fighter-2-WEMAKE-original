@@ -45,6 +45,7 @@
     "build:ext:firefox": "node scripts/package-extension-firefox.mjs",
     "build:ext:firefox:only": "node scripts/package-extension-firefox.mjs --no-build",
     "build:blbl": "tsc -b && vite build --mode bili-toy && node scripts/build-blbl-toy.mjs --dir dist-toy",
+    "dev:blbl": "vite --mode bili-toy",
     "__OTHERS___": "__OTHERS___",
     "rn:pull": "node ./scripts/zipsync.mjs pull --url https://lf.gim.ink/convertings/rn.zip --dir ./lf2s/rn --zip ./lf2s/rn.zip",
     "rn:push": "node ./scripts/zipsync.mjs push --url https://lf.gim.ink/convertings/rn.zip --dir ./lf2s/rn --zip ./lf2s/rn.zip",

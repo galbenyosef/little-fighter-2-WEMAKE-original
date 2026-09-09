@@ -7,6 +7,7 @@ import { ensure, traversal } from "../../utils";
  */
 export function make_fighter_data_louisex(data: IEntityData): IEntityData {
   data.base.group = ensure(data.base.group, EntityGroup.Boss);
+  data.base.bg_face ??= "sprite/MENU_BACK11.png";
 
   traversal(data.frames, (k, frame) => {
     const n = Number(k);

@@ -9,6 +9,7 @@ import { CondMaker } from "../CondMaker";
  * @return {IEntityData} 
  */
 export function make_fighter_data_louis(data: IEntityData): IEntityData {
+  data.base.bg_face ??= "sprite/MENU_BACK11.png";
   data.base.armor = {
     hit_sounds: ["data/085.wav.mp3"],
     type: ArmorEnum.Times,

@@ -9,6 +9,7 @@ import { CondMaker } from "../CondMaker";
  * @return {IEntityData}
  */
 export function make_fighter_data_rudolf(data: IEntityData): IEntityData {
+  data.base.bg_face ??= "sprite/MENU_BACK12.png";
   for (const k in data.frames) {
     const frame = data.frames[k]
     frame.opoint?.forEach((opoint) => {
