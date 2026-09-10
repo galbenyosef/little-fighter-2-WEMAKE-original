@@ -45,9 +45,9 @@ export function make_fighter_data_louis(data: IEntityData): IEntityData {
         if (!("id" in ja) || ja.id !== "300")
           continue;
         ja.expression = new CondMaker()
-          .add(EntityVal.HP_P, "<=", 33)
+          .add(EntityVal.IsSurvialRankMode, "!=", 1)
+          .and(EntityVal.HP_P, "<=", 33)
           .or(EntityVal.LF2_NET_ON, "==", 1)
-          .or(EntityVal.IsSurvialRankMode, "!=", 1)
           .done();
       }
     }
