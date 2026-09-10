@@ -33,10 +33,9 @@ export class BotState_Avoiding extends BotState_Base {
     if (c.is_leave_avoid_zone(av))
       return BSE.Idle;
 
-    const { player_l, player_r, enemy_l, enemy_r, team } = s;
-    const is_player = me.team !== team;
-    const l = is_player ? player_l : enemy_l;
-    const r = is_player ? player_r : enemy_r;
+    const { player_l, player_r } = s;
+    const l = player_l;
+    const r = player_r;
 
     const av_edge_l = l + 80;
     const av_edge_r = r - 80;
