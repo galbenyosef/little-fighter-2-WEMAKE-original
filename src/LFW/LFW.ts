@@ -345,6 +345,7 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
     this.pointings = new I.Ditto.Pointings();
     I.Ditto.Cache.forget(LFW.DATA_TYPE, LFW.DATA_VERSION).catch(e => { })
     I.Ditto.Cache.forget(PlayerInfo.DATA_TYPE, PlayerInfo.DATA_VERSION).catch(e => { })
+    I.Ditto.Zip.forget_stored(LFW.DATA_TYPE, LFW.DATA_VERSION).catch(e => { })
     this.world = new World(this);
     this.world.start_update();
     this.world.start_render();
@@ -458,36 +459,62 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
     let zip: I.IZip | null = null;
 
     const { url, md5 } = info;
-    const exists = md5 ? await I.Ditto.Cache.get(md5) : undefined;
-    if (exists) check()
+    const zip_url = full_zip_url(info_url, url)
 
-    if (exists?.data) {
-      zip = await I.Ditto.Zip.read_buf(exists.name, exists.data);
+    if (md5) {
+      const stored = await I.Ditto.Zip.get_stored(zip_url, md5);
       check()
-    } else if (exists?.blob) {
-      const buf = new Uint8Array(await exists.blob.arrayBuffer());
-      zip = await I.Ditto.Zip.read_buf(exists.name, buf);
-      check()
+      if (stored) {
+        zip = await I.Ditto.Zip.read_blob(md5, stored, md5);
+        check()
+      }
     }
 
     if (!zip) {
-      const zip_url = full_zip_url(info_url, url)
-      zip = await I.Ditto.Zip.download(zip_url, (progress, full_size) =>
-        this.on_loading_file(zip_url, progress, full_size),
-      );
+      const exists = md5 ? await I.Ditto.Cache.get(md5) : undefined;
+      if (exists) check()
+
+      if (exists?.data) {
+        zip = await I.Ditto.Zip.read_buf(exists.name, exists.data);
+        check()
+      } else if (exists?.blob) {
+        zip = await I.Ditto.Zip.read_blob(exists.name, exists.blob, md5);
+        check()
+      }
+    }
+
+    if (!zip) {
+      const downloaded = await I.Ditto.Zip.download(zip_url, (progress, full_size) =>
+        this.on_loading_file(zip_url, progress, full_size), {
+        md5,
+        aborted: () => this._disposed,
+        type: LFW.DATA_TYPE,
+        version: LFW.DATA_VERSION,
+      });
       check()
 
       await I.Ditto.Cache.del(info_url, "");
       check()
-    }
 
-    if (md5) {
-      await I.Ditto.Cache.put({
-        name: md5,
-        version: LFW.DATA_VERSION,
-        type: LFW.DATA_TYPE,
-        data: await zip.blob()
-      });
+      if (downloaded.stored) {
+        zip = await I.Ditto.Zip.read_blob(md5 ?? zip_url, downloaded.blob, downloaded.md5);
+      } else if (md5) {
+        await I.Ditto.Cache.put({
+          name: md5,
+          version: LFW.DATA_VERSION,
+          type: LFW.DATA_TYPE,
+          blob: downloaded.blob,
+          data: null,
+        });
+        check()
+
+        const cached = await I.Ditto.Cache.get(md5);
+        zip = cached?.blob
+          ? await I.Ditto.Zip.read_blob(cached.name, cached.blob, md5)
+          : await I.Ditto.Zip.read_blob(md5, downloaded.blob, downloaded.md5);
+      } else {
+        zip = await I.Ditto.Zip.read_blob(zip_url, downloaded.blob, downloaded.md5);
+      }
       check()
     }
 
@@ -577,6 +604,7 @@ export class LFW implements I.IKeyboardCallback, IDebugging {
       this._playable = true;
       this.callbacks.call("on_loading_end");
     } catch (e) {
+      if (this._disposed) check()
       this.callbacks.call("on_loading_failed", e);
       return await Promise.reject(e);
     } finally {

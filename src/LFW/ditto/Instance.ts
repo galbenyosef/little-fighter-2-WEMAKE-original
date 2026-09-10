@@ -4,6 +4,7 @@ import type { UINode } from '../ui/UINode';
 import type { World } from "../World";
 import type { ICache } from './cache/ICache';
 import type { IFullScreen } from './fullscreen/IFullScreen';
+import type { IBlob } from "./IBlob";
 import type { IImageMgr } from "./image/IImageMgr";
 import type { IImporter } from './importer/IImporter';
 import type { IClock } from "./IClock";
@@ -17,7 +18,9 @@ import type { IWorldRenderer } from "./render/IWorldRenderer";
 import type { ISounds } from './sounds/ISounds';
 import type { IUIInputHandle } from "./ui/IEventHandle";
 import type { IXML } from './xml/IXML';
+import type { IDownloadedZip } from './zip/IDownloadedZip';
 import type { IZip } from './zip/IZip';
+import type { IZipDownloadOpts } from './zip/IZipDownloadOpts';
 
 export interface IDitto extends IDittoPack {
   setup(pack: IDittoPack): void;
@@ -34,10 +37,14 @@ export interface IDittoPack {
   Zip: {
     read_file(file: IReadable): Promise<IZip>;
     read_buf(name: string, buf: Uint8Array): Promise<IZip>;
+    read_blob(name: string, blob: IBlob, md5?: string): Promise<IZip>;
+    get_stored(url: string, md5?: string): Promise<IBlob | null>;
+    forget_stored(type: string, version: number): Promise<void>;
     download(
       url: string,
-      on_progress: (progress: number, size: number) => void
-    ): Promise<IZip>;
+      on_progress: (progress: number, size: number) => void,
+      opts?: IZipDownloadOpts,
+    ): Promise<IDownloadedZip>;
   };
   Sounds: new (...args: any[]) => ISounds;
   Keyboard: new (lfw: LFW, ...args: any[]) => IKeyboard;

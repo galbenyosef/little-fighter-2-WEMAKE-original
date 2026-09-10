@@ -15,6 +15,7 @@ export * from "./_t";
 export * from "./md5";
 export * from "./ImageMgr";
 export * from "./cache";
+export * from "./download";
 export * from "./renderer";
 export * from "./sounds";
 export * from "./ui";

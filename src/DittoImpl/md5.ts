@@ -12,3 +12,10 @@ export function md5_buf(data: Uint8Array): string {
     : data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
   return SparkMD5.ArrayBuffer.hash(buf);
 }
+
+export async function md5_blob(data: Blob, chunk_size: number = 4 * 1024 * 1024): Promise<string> {
+  const hasher = new SparkMD5.ArrayBuffer();
+  for (let offset = 0; offset < data.size; offset += chunk_size)
+    hasher.append(await data.slice(offset, offset + chunk_size).arrayBuffer());
+  return hasher.end();
+}

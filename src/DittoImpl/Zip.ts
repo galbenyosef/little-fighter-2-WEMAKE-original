@@ -1,7 +1,7 @@
-import axios from "axios";
 import json5 from "json5";
 import JSZIP from "jszip";
-import type { IReadable, IZip, IZipObject } from "../LFW/ditto";
+import type { IDownloadedZip, IReadable, IZip, IZipDownloadOpts, IZipObject } from "../LFW/ditto";
+import { download_resumable, forget_stored_download, get_stored_download } from "./download/download_resumable";
 import { md5_buf } from "./md5";
 import { is_str } from "../LFW/utils/type_check";
 
@@ -58,24 +58,28 @@ export class __Zip implements IZip {
     const jszip = await JSZIP.loadAsync(buf);
     return new __Zip(name, jszip, md5_buf(buf));
   }
+  static async read_blob(name: string, blob: Blob, md5?: string): Promise<IZip> {
+    const jszip = await JSZIP.loadAsync(blob);
+    return new __Zip(name, jszip, md5 ?? "");
+  }
+  static async get_stored(url: string, md5?: string): Promise<Blob | null> {
+    return await get_stored_download(url, md5);
+  }
+  static async forget_stored(type: string, version: number): Promise<void> {
+    await forget_stored_download(type, version);
+  }
   static async download(
     url: string,
     on_progress: (progress: number, size: number) => void,
-  ): Promise<IZip> {
-    const buf = await axios
-      .get<ArrayBuffer>(url, {
-        responseType: "arraybuffer",
-        params: { time: Date.now() },
-        onDownloadProgress: (e_1) => {
-          const progress_1 = e_1.total
-            ? Math.round((100 * e_1.loaded) / e_1.total)
-            : 100;
-          on_progress(progress_1, e_1.total ?? e_1.loaded);
-        },
-      })
-      .then((resp) => new Uint8Array(resp.data));
-    const jszip = await JSZIP.loadAsync(buf);
-    return new __Zip(url, jszip, md5_buf(buf));
+    opts?: IZipDownloadOpts,
+  ): Promise<IDownloadedZip> {
+    return await download_resumable(url, {
+      md5: opts?.md5,
+      aborted: opts?.aborted,
+      type: opts?.type,
+      version: opts?.version,
+      on_progress,
+    });
   }
 
   readonly name: string;

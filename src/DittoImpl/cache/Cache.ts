@@ -31,9 +31,12 @@ export const __Cache: ICache = {
     }
     return db
       .open()
-      .then(() => db.tbl_lf2_data.put({
-        ...record,
-        create_date: Date.now(),
+      .then(() => db.transaction("rw", db.tbl_lf2_data, async () => {
+        await db.tbl_lf2_data.where("name").equals(record.name).delete();
+        return db.tbl_lf2_data.put({
+          ...record,
+          create_date: Date.now(),
+        });
       }))
       .catch((_) => void 0);
   },

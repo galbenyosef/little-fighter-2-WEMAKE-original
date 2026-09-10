@@ -1,4 +1,5 @@
 /*** AUTO EXPORT START ***/
+export * from "./IBlob";
 export * from "./IClock";
 export * from "./IReadable";
 export * from "./IRender";

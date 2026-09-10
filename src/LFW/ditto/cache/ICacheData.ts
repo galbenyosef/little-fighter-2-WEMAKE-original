@@ -1,3 +1,4 @@
+import type { IBlob } from "../IBlob";
 
 /**
  * 缓存数据
@@ -5,11 +6,6 @@
  * @export
  * @interface ICacheData
  */
-
-/** 纯 ES 环境下的 Blob 最小声明 */
-interface Blob {
-  arrayBuffer(): Promise<ArrayBuffer>;
-}
 
 export interface ICacheData {
   /**
@@ -55,7 +51,7 @@ export interface ICacheData {
    */
   data?: Uint8Array | null;
 
-  blob?: Blob | null;
+  blob?: IBlob | null;
 
   /**
    * 缓存日期
