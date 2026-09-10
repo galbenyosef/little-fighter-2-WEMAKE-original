@@ -17,13 +17,15 @@
  *
  * 规则:
  *   - 源文件（docs/changelog/vX.Y.Z/*.md）中的一级标题 `# ...` 降级为二级标题 `## ...`
+ *   - 源文件里的相对链接/图片路径（如 `../../image/a.gif`）会按源文件所在目录解析为
+ *     相对仓库根目录的路径（如 `docs/image/a.gif`），避免拼进根目录后指错位置
  *   - 按版本号“从新到旧”排列
  *   - 若源文件标题的版本号与目录名不一致（如 v0.1.9 目录里误放了 v0.1.5 的内容），
  *     则跳过该源文件并保留目标文件中的原条目
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
-import { dirname, join, resolve } from 'path';
+import { dirname, join, posix, relative, resolve } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -49,12 +51,43 @@ function compareVersions(a, b) {
   return 0;
 }
 
+/** 判断链接目标是否是相对路径（http(s)/mailto/data 等、`#` 锚点、`/` 站点绝对路径都不算） */
+function is_relative_url(url) {
+  if (!url) return false;
+  if (url.startsWith('#') || url.startsWith('//') || url.startsWith('/')) return false;
+  if (/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(url)) return false;
+  return true;
+}
+
+/**
+ * md 中的相对链接/图片路径 -> 相对仓库根目录的路径。
+ *
+ * 源文件位于 docs/changelog/vX.Y.Z/，其中 `../../image/a.gif` 是相对源文件解析的；
+ * 直接拼进根目录的 CHANGELOG 后含义会变，这里统一改写为 `docs/image/a.gif`。
+ *
+ * @param {string} content md 文本
+ * @param {string | undefined} src_dir_rel 源文件所在目录（相对仓库根目录，如 `docs/changelog/v0.1.48`）
+ */
+export function rewrite_relative_urls(content, src_dir_rel) {
+  if (!src_dir_rel) return content;
+  return content.replace(/(!?\[[^\]]*\]\(\s*)([^)\s]+)([^)]*\))/g, (match, pre, url, post) => {
+    if (!is_relative_url(url)) return match;
+    const rewritten = posix.normalize(posix.join(src_dir_rel, url));
+    if (!rewritten || rewritten.startsWith('..')) {
+      console.warn(`[警告] 相对路径超出仓库根目录，保持原样: ${url}`);
+      return match;
+    }
+    return `${pre}${rewritten}${post}`;
+  });
+}
+
 /**
  * 源文件内容 -> 可合并的条目文本。
- * 规则: 一级标题（`# x`）降级为二级标题（`## x`），其余层级保持不变。
+ * 规则: 一级标题（`# x`）降级为二级标题（`## x`），其余层级保持不变；
+ * 相对链接/图片路径改写为相对仓库根目录的路径（见 `rewrite_relative_urls`）。
  */
-export function toEntry(content) {
-  const text = content.replace(/\r\n/g, '\n').trim();
+export function toEntry(content, src_dir_rel) {
+  const text = rewrite_relative_urls(content.replace(/\r\n/g, '\n').trim(), src_dir_rel);
   return text.replace(/^#(?!#)\s+/gm, '## ') + '\n';
 }
 
@@ -113,7 +146,7 @@ function rebuildTarget(cfg, srcVersions, lang) {
       console.warn(`[跳过] ${version} 的 ${lang} 源文件为空: ${srcPath}`);
       continue;
     }
-    const entry = toEntry(content).replace(/\n+$/, '');
+    const entry = toEntry(content, relative(ROOT, dirname(srcPath)).replace(/\\/g, '/')).replace(/\n+$/, '');
     // 校验源文件标题的版本号与目录名一致，防止错放文件（如 v0.1.9 目录里误放 v0.1.5 内容）
     const m = entry.split('\n')[0].match(VERSION_HEADING_RE);
     if (!m || m[2] !== key) {
