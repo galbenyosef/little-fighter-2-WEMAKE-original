@@ -201,6 +201,15 @@
       "style": {
         "font": "12px Arial"
       }
+    },
+    {
+      "id": "desktop_hint",
+      "i18n": "init.desktop_recommend",
+      "pos": "397,18",
+      "center": "0.5,0",
+      "style": {
+        "font": "12px Arial"
+      }
     }
   ]
 }
