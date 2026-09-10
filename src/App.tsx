@@ -359,6 +359,9 @@ function App() {
       }
       // 生存排行数据由宿主拉取后“下发”(set_survival_rank_data)，UI 侧值变化时更新
       lf2.survival_rank_available = true
+      // App 启动时（云存储无记录时）先提交一次 0：尽早完成平台首次用户数据确认，
+      // 并让“已提交最高分”记录对齐服务端；已有记录（≥0）会被 submit_rank_score 去重跳过
+      submit_rank_score(0).catch(() => { })
     }
     if (
       location.pathname.endsWith('demo') ||
