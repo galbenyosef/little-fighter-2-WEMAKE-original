@@ -10,6 +10,8 @@ export interface ICharMenuHeadProps {
   countdown_label?: UINode,
   hints_node?: UINode,
   head_pic?: Picture,
+  /** 操作提示（如“按攻击开始游戏”）：仅已加入且未倒计时时显示，可缺省 */
+  start_hints_node?: UINode,
 }
 /**
  * 显示玩家角色选择的角色头像
@@ -25,6 +27,7 @@ export class CharMenuHead extends UIComponent<ICharMenuHeadProps> {
     hints_node: { type: UINode, nullable: false },
     // 小头像：部分页面改用背景大头像后不再需要，可缺省
     head_pic: { type: Picture, nullable: true },
+    start_hints_node: { type: UINode, nullable: true },
   };
   protected _joined: boolean = false;
   protected _opacity: Sine = new Sine(0.65, 1, 6);
@@ -53,6 +56,7 @@ export class CharMenuHead extends UIComponent<ICharMenuHeadProps> {
     const hints_visible = !this._joined && !this.countdown_node?.visible
     this.props.hints_node?.set_visible(hints_visible);
     this.props.hints_node?.set_opacity(this._opacity.value);
+    this.props.start_hints_node?.set_visible(this._joined && !this.countdown_node?.visible);
     this.props.head_pic?.node.set_visible(!hints_visible && !this.countdown_node?.visible && !!this._path)
   }
   count_down(num: number): void {

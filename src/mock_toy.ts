@@ -5,7 +5,7 @@
  * - `http://localhost:5173/#/?TOY=1`：基础 mock（submitScore 只写控制台/localStorage）。
  * - `http://localhost:5173/#/?TOY=2`：再填充 100 个假榜单数据 + “我”的数据，便于看榜/翻页效果。
  * - 注入 window.toy（isSupport / getContainerState / setContainerMode / onContainerChange /
- *   submitScore / getRankList / getMyRank / closeBrowser），使 is_toy_env() 等为真。
+ *   submitScore / getRankList / getMyRank / getCloudStorage / setCloudStorage / closeBrowser），使 is_toy_env() 等为真。
  * - 已存在真实 window.toy（B站 App 内）时不注入。
  * - deviceType 按视口宽窄自动判定：窗口宽 > 960px 上报 desktop（PC 上不隐藏全屏按钮），
  *   窄窗口(<=960px)或 DevTools 手机模拟则上报 phone（可复现移动端布局）。
@@ -96,6 +96,17 @@ export function install_mock_toy_if_requested(): void {
     }
   }
 
+  // 云存储（真实环境按「登录用户 + Toy」隔离；本地用单一 localStorage 模拟）
+  const CLOUD_STORAGE_KEY = 'mock_toy_cloud_storage'
+  const cloud_storage = read_json<Record<string, string>>(CLOUD_STORAGE_KEY, {})
+  const save_cloud_storage = () => {
+    try {
+      localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(cloud_storage))
+    } catch (e) {
+      console.warn(LOG_TAG, '保存云存储失败', e)
+    }
+  }
+
   /** 生成榜单行：TOY=2 时 = 100 假 + 我；TOY=1 时 = 历史提交（其中最高的一条视为我） */
   const build_rows = (): { score: number; ts: number; me?: boolean; nick: string }[] => {
     const rows: { score: number; ts: number; me?: boolean; nick: string }[] = []
@@ -155,6 +166,20 @@ export function install_mock_toy_if_requested(): void {
       const idx = rows.findIndex(v => v.me)
       if (idx < 0) return { ranked: false, rank: 0, score: 0 }
       return { ranked: true, rank: idx + 1, score: rows[idx]!.score }
+    },
+    getCloudStorage: async (keys) => {
+      if (!keys?.length) return { ...cloud_storage }
+      const ret: Record<string, string> = {}
+      for (const key of keys) {
+        const v = cloud_storage[key]
+        if (v !== void 0) ret[key] = v
+      }
+      return ret
+    },
+    setCloudStorage: async (items) => {
+      Object.assign(cloud_storage, items)
+      save_cloud_storage()
+      console.log(LOG_TAG, 'setCloudStorage()', items)
     },
   }
 

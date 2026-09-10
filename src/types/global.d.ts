@@ -71,6 +71,9 @@ interface ToySDK {
   submitScore?(req: { board?: number; score: number }): Promise<{ score: number }>
   getRankList?(req?: { board?: number; period?: ToyRankPeriod; limit?: number }): Promise<ToyRankItem[]>
   getMyRank?(req?: { board?: number; period?: ToyRankPeriod }): Promise<ToyMyRank>
+  /** 云存储：按「登录用户 + Toy」隔离，key 不能以 __ 开头 */
+  getCloudStorage?(keys?: string[]): Promise<Record<string, string>>
+  setCloudStorage?(items: Record<string, string>): Promise<void>
 }
 declare const VERSION_NAME: string;
 declare const GIT_COMMIT_ID: string;

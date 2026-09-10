@@ -9,6 +9,8 @@
         max_player: 1,
         min_player: 1,
         teams: ["1"],
+        // 进入即自动加入（默认“随机”），不再显示“按攻击加入”提示
+        auto_join: true,
         // 只允许主线斗士 OID 1~11（Deep~Davis）
         oids: ["1", "2", "4", "5", "6", "7", "8", "9", "10", "11"],
       },
@@ -25,6 +27,7 @@
           properties: {
             countdown_label: "countdown_text",
             hints_node: "hints",
+            start_hints_node: "start_hint",
           },
         },
       ],
@@ -72,6 +75,18 @@
         font: '36px "Arial Black", Arial',
       },
       component: ["FighterName()"],
+    },
+    {
+      // “按攻击开始游戏”提示：已加入且未倒计时时显示（CharMenuHead.start_hints_node 驱动）
+      id: "start_hint",
+      pos: "142, 408",
+      center: "0.5,0",
+      i18n: "bilibili_survival.press_atk_start",
+      style: {
+        fill_style: "#ffffff",
+        font: "16px Arial",
+        text_align: "center",
+      },
     },
     {
       // 左/右切换角色（等价键盘 L/R；未加入时先加入）：broadcast 由 CharMenuLogic.pick_lr 处理

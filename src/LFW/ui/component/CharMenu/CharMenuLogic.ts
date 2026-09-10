@@ -28,6 +28,7 @@ export interface ICharMenuLogicProps {
   teams?: string[];
   /** 限定可选角色 OID 列表（如 B站生存排行只允许主线斗士） */
   oids?: string[];
+  auto_join?: boolean;
 }
 /**
  * 角色选择逻辑
@@ -43,6 +44,7 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
     max_player: { type: Number, nullable: true },
     teams: { type: Array, items: String, nullable: true },
     oids: { type: Array, items: String, nullable: true },
+    auto_join: { type: Boolean, nullable: true },
   };
   readonly prev_players = new Map<PlayerInfo, SlotState>()
   readonly players = new Map<PlayerInfo, SlotState>()
@@ -138,6 +140,21 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
       }
       this.slots.push(e)
     }
+    if (this.props.auto_join) this.auto_join()
+  }
+
+  override on_resume(): void {
+    super.on_resume?.();
+    if (this.props.auto_join) this.auto_join()
+  }
+
+  protected auto_join(): void {
+    for (const p of this.players.keys()) if (!p.is_com) return
+    for (const p of this.lfw.players.values()) {
+      if (p.is_com) continue
+      this.press_a(p)
+      return
+    }
   }
 
   override on_stop(): void {
@@ -161,6 +178,15 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
       state.fighter = this._randoming?.get() ?? null
     }
     this.update_slots()
+  }
+
+  /** 取消倒计时（按“防御”）：退回选角步骤并回到选角状态 */
+  cancel_counting_down(player: PlayerInfo): void {
+    const state = this.players.get(player)
+    if (!state) return
+    state.step = SlotStep.FighterSel
+    this.lfw.sounds.play_preset("cancel")
+    this.fsm.use(CharMenuState.PlayerSel)
   }
   update_slots() {
     const { slots } = this;
@@ -228,7 +254,15 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
   press_j(player: PlayerInfo) {
     const state = this.players.get(player)
     if (!state) { if (this.is_player_sel) this.lfw.pop_ui(); }
-    else if (state.step <= SlotStep.FighterSel) this.players.delete(player);
+    else if (state.step <= SlotStep.FighterSel) {
+      // auto_join：不取消加入（避免退回“按攻击加入”的未加入态），按“跳跃”直接返回上一页
+      if (this.props.auto_join) {
+        this.lfw.sounds.play_preset("cancel")
+        this.lfw.pop_ui()
+        return
+      }
+      this.players.delete(player);
+    }
     else state.step = max(state.step - 1, SlotStep.FighterSel)
     this.lfw.sounds.play_preset("cancel");
     this.update_slots()

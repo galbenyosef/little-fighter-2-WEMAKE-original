@@ -15,9 +15,14 @@ export class CharMenuState_CountingDown extends CharMenuState_Base {
     this._count_down = 5000;
   }
   override on_key_down(e: IUIKeyEvent): void {
+    const player = this.lfw.players.get(e.player);
+    // auto_join（生存排行等）：按“防御”取消倒计时，退回选角
+    if (this.owner.props.auto_join && e.game_key === GameKey.d && player && this.owner.players.has(player)) {
+      this.owner.cancel_counting_down(player);
+      return;
+    }
     this._count_down = max(0, this._count_down - 500);
     if (this.owner.max_player <= this.owner.players.size) return;
-    const player = this.lfw.players.get(e.player);
     if (!player || e.game_key !== GameKey.a || this.owner.players.has(player)) return;
     this.owner.press_a(player);
     this.owner.fsm.use(CharMenuState.PlayerSel);
