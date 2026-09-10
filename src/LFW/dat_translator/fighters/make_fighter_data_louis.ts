@@ -47,6 +47,7 @@ export function make_fighter_data_louis(data: IEntityData): IEntityData {
         ja.expression = new CondMaker()
           .add(EntityVal.HP_P, "<=", 33)
           .or(EntityVal.LF2_NET_ON, "==", 1)
+          .or(EntityVal.IsSurvialRankMode, "!=", 1)
           .done();
       }
     }

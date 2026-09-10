@@ -109,6 +109,9 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
     on_broadcast: (message) => {
       if (message === 'reset_gpl') return this.reset();
       if (message === 'update_random') return this.update_random();
+      // UI 左/右按钮（见 bilibili_survival_char_menu.ui.json5）：等价键盘 L/R 切换角色
+      if (message === 'char_menu_pick_prev') return this.pick_lr(-1);
+      if (message === 'char_menu_pick_next') return this.pick_lr(+1);
     }
   }
   slots: ISlotPack[] = []
@@ -258,6 +261,30 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
       state.team = teams[next_idx]
     }
     this.update_slots()
+  }
+
+  /**
+   * UI 左/右按钮：对菜单内的本地玩家切换角色（等价键盘 L/R，仅在选角状态生效）。
+   * 还没有玩家加入时，先以首位本地玩家加入，再切换。
+   */
+  pick_lr(dir: 1 | -1): void {
+    if (!this.is_player_sel) return
+    let player: PlayerInfo | undefined
+    for (const p of this.players.keys()) {
+      if (p.is_com) continue
+      player = p
+      break
+    }
+    if (!player) {
+      for (const p of this.lfw.players.values()) {
+        if (p.is_com) continue
+        player = p
+        break
+      }
+      if (!player) return
+      this.press_a(player)
+    }
+    this.press_lr(player, dir)
   }
 
   press_u(player: PlayerInfo) {

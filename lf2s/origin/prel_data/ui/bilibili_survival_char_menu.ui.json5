@@ -73,5 +73,34 @@
       },
       component: ["FighterName()"],
     },
+    {
+      // 左/右切换角色（等价键盘 L/R；未加入时先加入）：broadcast 由 CharMenuLogic.pick_lr 处理
+      id: "fighter_pick_prev",
+      pos: "22, 390",
+      center: "0.5,0.5",
+      i18n: "◀",
+      actions: {
+        click: ["broadcast(char_menu_pick_prev)", "sound(ok)"],
+      },
+      style: {
+        fill_style: "#9b9bff",
+        font: "36px Arial",
+        text_align: "center",
+      },
+    },
+    {
+      id: "fighter_pick_next",
+      pos: "262, 390",
+      center: "0.5,0.5",
+      i18n: "▶",
+      actions: {
+        click: ["broadcast(char_menu_pick_next)", "sound(ok)"],
+      },
+      style: {
+        fill_style: "#9b9bff",
+        font: "36px Arial",
+        text_align: "center",
+      },
+    },
   ],
 }

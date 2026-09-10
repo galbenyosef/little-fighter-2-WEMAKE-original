@@ -78,6 +78,7 @@ export enum EntityVal {
   TransformListSize = 'transform_list_size',
   IsOnGround = 'is_on_ground',
   TransformIndex = 'transform_index',
+  IsSurvialRankMode = 'survial_rank_mode',
 }
 
 export const EntityValDescriptions: Record<EntityVal, string> = {
@@ -119,7 +120,8 @@ export const EntityValDescriptions: Record<EntityVal, string> = {
   [EntityVal.HitByMagicFlute]: "",
   [EntityVal.TransformListSize]: "",
   [EntityVal.IsOnGround]: "",
-  [EntityVal.TransformIndex]: ""
+  [EntityVal.TransformIndex]: "",
+  [EntityVal.IsSurvialRankMode]: ""
 }
 
 export const E_Val = EntityVal
