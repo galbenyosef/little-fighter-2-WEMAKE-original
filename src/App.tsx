@@ -156,6 +156,9 @@ const is_mobile_container = navigator.userAgent.includes('lfw-mobile-container')
 const is_toy_mobile_now = () =>
   is_toy_env() && (device.mobile() || device.tablet())
 
+/** B站生存排行：App 启动时的 0 分提交只做一次（React StrictMode 开发模式会重复执行 effect） */
+let rank_startup_submitted = false
+
 function App() {
   const l = useLocation()
   const nav = useNavigate()
@@ -361,7 +364,10 @@ function App() {
       lf2.survival_rank_available = true
       // App 启动时（云存储无记录时）先提交一次 0：尽早完成平台首次用户数据确认，
       // 并让“已提交最高分”记录对齐服务端；已有记录（≥0）会被 submit_rank_score 去重跳过
-      submit_rank_score(0).catch(() => { })
+      if (!rank_startup_submitted) {
+        rank_startup_submitted = true
+        submit_rank_score(0).catch(() => { })
+      }
     }
     if (
       location.pathname.endsWith('demo') ||
