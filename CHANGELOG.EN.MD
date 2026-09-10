@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.1.48](https://lf.gim.ink/0.1.48)
+
+by [**Gim**](https://gim.ink)
+
+"CHEERS, BILIBILI !"
+
+### What's New
+
+- The game is now playable on [Bilibili Toy](https://www.bilibili.com/toy/Little-Fighter-Wemake)
+- New mode added to [Bilibili Toy](https://www.bilibili.com/toy/Little-Fighter-Wemake): Survival Rank — come and see how you rank!
+
+### Tweaks
+
+- Reworked UPS control: UPS is now closer to the intended design and more stable
+- Other tweaks
+
 ## [v0.1.47](https://lf.gim.ink/0.1.47)
 
 by [**Gim**](https://gim.ink)
@@ -9,9 +25,9 @@ by [**Gim**](https://gim.ink)
 ### What's New
 
 - You can now switch the language (unproofread)
-  ![switch_lang_w400.gif](../../image/switch_lang_w400.gif)
+  ![switch_lang_w400.gif](docs/image/switch_lang_w400.gif)
 - New weapon: Book Bundle + Book x3 (the first 3D-model weapon; heavy weapon / light thrown 3D-model weapons)
-- ![unzip_w400.gif](../../image/unzip_w400.gif)
+- ![unzip_w400.gif](docs/image/unzip_w400.gif)
 
 ### Weapons / Feel
 
@@ -32,10 +48,10 @@ by [**Gim**](https://gim.ink)
 ### News
 
 - New weapon: Basketball (an experiment in "multi-sprite overlay" & "sprite rotation")
-![davis & basketball 'playing'](../../image/bskb_davis.gif)
+![davis & basketball 'playing'](docs/image/bskb_davis.gif)
 
 - New map: Pixel Ruler ("for testing some things")
-![test case in the Pixel Ruler](../../image/px_rl.gif)
+![test case in the Pixel Ruler](docs/image/px_rl.gif)
 
 ### Misc
 

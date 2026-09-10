@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.1.48](https://lf.gim.ink/0.1.48)
+
+by [**Gim**](https://gim.ink)
+
+"Bilibili 干杯"
+
+### 新东西
+
+- 现在能在[Bilibili toy](https://www.bilibili.com/toy/Little-Fighter-Wemake) 玩了
+- [Bilibili toy](https://www.bilibili.com/toy/Little-Fighter-Wemake) 中，新增生存排行模式，来比比吧。
+
+### 调整
+
+- 重做UPS控制，UPS现在更接近设定，且更稳定。
+- 其他调整
+
 ## [v0.1.47](https://lf.gim.ink/0.1.47)
 
 by [**Gim**](https://gim.ink)
@@ -9,9 +25,9 @@ by [**Gim**](https://gim.ink)
 ### 新东西
 
 - 现在可以切换语言 (未校对)
-  ![switch_lang_w400.gif](../../image/switch_lang_w400.gif)
+  ![switch_lang_w400.gif](docs/image/switch_lang_w400.gif)
 - 新武器：书本捆 + 书x3（第一个 3D 模型重型武器，轻投掷 3D 模型武器）
-- ![unzip_w400.gif](../../image/unzip_w400.gif)
+- ![unzip_w400.gif](docs/image/unzip_w400.gif)
 
 ### 武器 / 手感
 
@@ -32,10 +48,10 @@ by [**Gim**](https://gim.ink)
 ### 新特性
 
 - 新武器：篮球 (“多精灵图叠加”、“精灵图旋转”的实验品)
-![davis & basketball 'playing'](../../image/bskb_davis.gif)
+![davis & basketball 'playing'](docs/image/bskb_davis.gif)
 
 - 新地图：像素尺（“用于测试一些东西”）
-![test case in the Pixel Ruler](../../image/px_rl.gif)
+![test case in the Pixel Ruler](docs/image/px_rl.gif)
 
 ### 杂项
 
