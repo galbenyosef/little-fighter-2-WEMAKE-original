@@ -8,6 +8,7 @@ import type { IEntityData } from "../../defines";
  * @return {IEntityData}
  */
 export function make_fighter_data_henry(data: IEntityData): IEntityData {
+  data.base.bg_face ??= "sprite/MENU_BACK8.png";
   return data;
 }
 

@@ -25,8 +25,8 @@ function split_text_to_lines(text: string, ctx: CanvasRenderingContext2D, style:
   });
   w += padding_l + padding_r;
   h += padding_t + padding_b;
-  if (style.text_align === "center") for (const l of lines) l.x = round(w / 2);
-  if (style.text_align === "right") for (const l of lines) l.x = round(w);
+  if (style.text_align === "center") for (const l of lines) l.x = round((w - padding_l - padding_r) / 2);
+  if (style.text_align === "right") for (const l of lines) l.x = round(w - padding_l - padding_r);
   return [lines, w, h];
 }
 
@@ -34,12 +34,17 @@ function draw_underline(style: IStyle, ctx: CanvasRenderingContext2D, lines: ITe
   const { underline_color, underline_width } = style;
   if (!underline_width) return;
   const { padding_l = 0, padding_t = 0 } = style;
+  const align = style.text_align ?? 'left';
   ctx.strokeStyle = underline_color ?? style.fill_style ?? "white";
   ctx.lineWidth = underline_width;
   for (const { x, y, w } of lines) {
+    let sx: number, ex: number;
+    if (align === 'right') { sx = x - w; ex = x; }
+    else if (align === 'center') { sx = x - w / 2; ex = x + w / 2; }
+    else { sx = x; ex = x + w; }
     ctx.beginPath();
-    ctx.moveTo(padding_l + x, padding_t + y + underline_width + 1);
-    ctx.lineTo(padding_l + x + w, padding_t + y + underline_width + 1);
+    ctx.moveTo(padding_l + sx, padding_t + y + underline_width + 1);
+    ctx.lineTo(padding_l + ex, padding_t + y + underline_width + 1);
     ctx.stroke();
   }
 }

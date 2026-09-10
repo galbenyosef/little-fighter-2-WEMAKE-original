@@ -1,4 +1,5 @@
 import { Sine } from "../../animation/Sine";
+import type { IStyle } from "../../defines";
 import { TextInfo } from "../../ditto/image/TextInfo";
 import { UIComponent } from "./UIComponent";
 
@@ -14,15 +15,23 @@ export class FighterName extends UIComponent {
   private _decided?: boolean;
   private _com?: boolean;
 
+  /** 优先用 UINode（json5 里声明的 style）；没有时才用代码内置样式 */
+  protected make_style(com: boolean): IStyle {
+    const node_style = this.node.style?.data;
+    if (node_style && Object.keys(node_style).length)
+      return { ...node_style };
+    return {
+      fill_style: com ? "pink" : "white",
+      font: "14px Arial",
+    }
+  }
+
   join(text: string, com: boolean, decided: boolean) {
     this._decided = decided;
     this._com = com;
     this.node.text = new TextInfo({
       text,
-      style: {
-        fill_style: com ? "pink" : "white",
-        font: "14px Arial",
-      }
+      style: this.make_style(com),
     });
     this.node.visible = true
   }
@@ -32,10 +41,7 @@ export class FighterName extends UIComponent {
     const text = this.lfw.string(" ")
     this.node.text = new TextInfo({
       text,
-      style: {
-        fill_style: "white",
-        font: "14px Arial",
-      }
+      style: this.make_style(false),
     });
     this.node.visible = false
   }

@@ -23,7 +23,8 @@ export class CharMenuHead extends UIComponent<ICharMenuHeadProps> {
   static override readonly PROPS: IPropsMeta<ICharMenuHeadProps> = {
     countdown_label: { type: UINode, nullable: false },
     hints_node: { type: UINode, nullable: false },
-    head_pic: { type: Picture, nullable: false },
+    // 小头像：部分页面改用背景大头像后不再需要，可缺省
+    head_pic: { type: Picture, nullable: true },
   };
   protected _joined: boolean = false;
   protected _opacity: Sine = new Sine(0.65, 1, 6);

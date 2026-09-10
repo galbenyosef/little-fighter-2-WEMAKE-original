@@ -6,6 +6,7 @@ import { set_hit_flag } from "../set_hit_flag";
 
 
 export function make_fighter_data_firen(data: IEntityData) {
+  data.base.bg_face ??= "sprite/MENU_BACK5.png";
   [
     data.frames["running_0"],
     data.frames["running_1"],

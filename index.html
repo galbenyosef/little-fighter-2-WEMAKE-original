@@ -8,8 +8,7 @@
   <meta name="theme-color" content="#10206C" />
   <meta name="description" content="Little Fighter Wemake" />
   <link rel="manifest" href="manifest.json" />
-  <!-- B站 Toy JS SDK（见 docs/dev/Toy JS SDK.md）；非 Toy 环境加载后无副作用，代码侧已做降级防护 -->
-  <script src="//s1.hdslb.com/bfs/seed/toy/app/sdk/toy-sdk.js"></script>
+  <%- toySdk %>
   <title><%= title %></title>
 </head>
 
