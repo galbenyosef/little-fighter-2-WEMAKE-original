@@ -316,6 +316,12 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
   start_game() {
     const char_menu_logic = this.node.search_component(CharMenuLogic)
     if (!char_menu_logic) return;
+    // 战斗数据包可能尚未加载完(随机池为空)：此时不换场景，避免进到空场地
+    for (const [, slot_info] of char_menu_logic.players) {
+      if (slot_info.fighter) continue;
+      Ditto.warn(`[${GamePrepareLogic.TAG}::start_game] fighter data missing, start canceled`);
+      return;
+    }
 
     const { bg_switcher, stage_switcher } = this.props
     const is_survival_rank = this.props.game_mode === GAME_MODE_BILI_SURVIVAL

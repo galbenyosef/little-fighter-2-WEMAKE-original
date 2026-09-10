@@ -6,6 +6,36 @@ import type { Connection } from "./Connection";
 import { EntitySnapshotBuffer } from "./EntitySnapshotBuffer";
 import { SyncChecker } from "./SyncChecker";
 
+export function safe_json(value: unknown): string {
+  const seen = new WeakSet<object>();
+  try {
+    return JSON.stringify(value, (_key, val) => {
+      if (typeof val !== "object" || val === null) return val;
+      const name = val.constructor?.name;
+      if (name && /XML|Element|Node/.test(name)) return void 0;
+      if (seen.has(val)) return void 0;
+      seen.add(val);
+      return val;
+    }) ?? "null";
+  } catch {
+    return "?";
+  }
+}
+
+let _safe_check_warn_at = 0;
+export function safe_check(fn: () => string): string {
+  try {
+    return fn();
+  } catch (e) {
+    const now = Date.now();
+    if (now - _safe_check_warn_at > 1000) {
+      _safe_check_warn_at = now;
+      console.warn(`[LFWNetworkDriver] sync check field failed:`, e);
+    }
+    return "?";
+  }
+}
+
 export class LFWNetworkDriver {
   static readonly TAG = 'Lf2NetworkDriver';
   debugging: boolean = true;
@@ -186,20 +216,24 @@ export class LFWNetworkDriver {
         ['bots', lf2.datas.bots],
         ['stages', lf2.datas.stages],
       ];
-      req._d = groups
-        .map(([k, list]) => `${k}=` + list.map(v => `${v.id ?? '?'}:${md5(JSON.stringify(v))}`).join(','))
-        .join('|');
+      req._d = safe_check(() => groups
+        .map(([k, list]) => `${k}=` + (list ?? []).map(v => `${v?.id ?? '?'}:${md5(safe_json(v))}`).join(','))
+        .join('|'));
     }
-    if (this._events) req._a = `game_time=${lf2.world.game_time}`;
-    if (this._randoms) req._r = mt_cases.submit();
-    if (this._objects) req._p = Array.from(lf2.world.entities).map((e) => {
-      const { x, y, z } = e.position;
-      const { x: vx, y: vy, z: vz } = e.velocity;
-      const t = EntityEnum[e.data.type]
-      const b = is_bot_ctrl(e.ctrl) ? e.ctrl.fsm.state?.key : 'x';
-      return [t, e.id, e.name, e.frame.id, b, x, y, z, vx, vy, vz].join('_');
-    }).join('￥');
-    if (this._suspicious) req._s = sus_cases.submit();
+    if (this._events) req._a = safe_check(() => `game_time=${lf2.world.game_time}`);
+    if (this._randoms) req._r = safe_check(() => mt_cases.submit());
+    if (this._objects) req._p = safe_check(() => Array.from(lf2.world.entities).map((e) => {
+      try {
+        const { x, y, z } = e.position;
+        const { x: vx, y: vy, z: vz } = e.velocity;
+        const t = EntityEnum[e.data.type]
+        const b = is_bot_ctrl(e.ctrl) ? e.ctrl.fsm.state?.key : 'x';
+        return [t, e.id, e.name, e.frame.id, b, x, y, z, vx, vy, vz].join('_');
+      } catch {
+        return '?';
+      }
+    }).join('￥'));
+    if (this._suspicious) req._s = safe_check(() => sus_cases.submit());
     if (!this._failed) conn.send(MsgEnum.Tick, req);
     lf2.cmds.length = 0;
     lf2.events.length = 0;

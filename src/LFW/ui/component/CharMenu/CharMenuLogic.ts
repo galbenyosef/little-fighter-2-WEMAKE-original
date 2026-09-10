@@ -82,11 +82,21 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
   }
 
   protected _randoming_ready: boolean = false
-  /** 重建随机池（默认从 Regular 组 + oids 限制内挑选） */
+  protected _randoming_fighters: number = -1
+
   protected rebuild_randoming(): void {
     const fighters = this.filter_oids(this.lfw.datas.get_fighters_of_group(EG.Regular))
     this._randoming = new Randoming(`charmenu_fighter_randoming`, fighters, this.lfw.mt)
     this._randoming_ready = true
+    this._randoming_fighters = this.lfw.datas.fighters.length
+  }
+
+  protected ensure_randoming(): void {
+    if (this._randoming_fighters === this.lfw.datas.fighters.length) return
+    this.rebuild_randoming()
+    for (const [, state] of this.players)
+      if (!state.fighter) state.fighter = this._randoming?.get() ?? null
+    this.update_slots()
   }
 
   get fighters(): readonly IEntityData[] {
@@ -104,6 +114,7 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
     return this.filter_oids(ret.length ? ret : all);
   }
   protected _lf2_callbacks: ILFWCallback = {
+    on_loading_end: () => this.ensure_randoming(),
     on_cheat_changed: (cheat_name, enabled) => {
       if (cheat_name === CheatEnum.LF2_NET && !enabled)
         this.handle_fighters_changed();
@@ -173,6 +184,7 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
     this.fsm.use(CharMenuState.PlayerSel)
   }
   update_random() {
+    this.ensure_randoming();
     for (const [_, state] of this.players) {
       if (!state.random) continue;
       state.fighter = this._randoming?.get() ?? null
@@ -228,6 +240,7 @@ export class CharMenuLogic extends UIComponent<ICharMenuLogicProps> {
     }
   }
   press_a(player: PlayerInfo) {
+    this.ensure_randoming();
     const state = this.players.get(player)
     if (!state && this.max_player <= this.players.size)
       return;

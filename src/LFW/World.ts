@@ -43,6 +43,7 @@ import { Times } from './utils/Times';
 import { WorldDataset } from "./WorldDataset";
 const CHASING_UPDATE_INTERVAL = 8;
 const MAX_DEBUG_ENTITIES = 355
+const MAX_STEP_ERRORS = 120
 const x_sorter = (a: Entity, b: Entity) => {
   const d = a.aabb_min_x - b.aabb_min_x;
   if (d !== 0) return d;
@@ -285,7 +286,7 @@ export class World {
   sleep(): void { this._sleeping = true }
   awake(): void {
     this._sleeping = false;
-    this._update_worker?.resync();
+    this._update_worker?.resync(true);
   }
 
   protected base_step_ms(): number {
@@ -347,15 +348,30 @@ export class World {
       on_step: (dt) => {
         try {
           this.update_once(dt);
+          this._step_error_count = 0;
         } catch (e: any) {
-          Ditto.warn(e)
-          if (e.errors) Ditto.warn(e.errors)
-          this.stop_update();
+          this.on_step_error(e);
         }
       },
     });
     this._update_worker = worker;
     worker.start();
+  }
+
+  private _step_error_count: number = 0;
+  private _step_error_time: number = 0;
+  protected on_step_error(e: any): void {
+    this._step_error_count++;
+    const now = Date.now();
+    if (now - this._step_error_time > 1000) {
+      this._step_error_time = now;
+      Ditto.warn(e);
+      if (e?.errors) Ditto.warn(e.errors);
+    }
+    if (this._step_error_count >= MAX_STEP_ERRORS) {
+      Ditto.warn(`[${World.TAG}::start_update] ${this._step_error_count} times update error in a row, stop update loop`);
+      this.stop_update();
+    }
   }
 
   private _restrict_result: IVector3Like = { x: 0, y: 0, z: 0 }

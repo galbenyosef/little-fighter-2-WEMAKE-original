@@ -69,11 +69,11 @@ export class Ticker {
   stop(): void {
     if (!this._running) return;
     this._running = false;
-    this._pending = false;
     this._cancel();
   }
 
   private _cancel(): void {
+    this._pending = false;
     if (this._timer) {
       Ditto.Timeout.del(this._timer);
       this._timer = 0;
@@ -84,12 +84,12 @@ export class Ticker {
     }
   }
 
-  resync(): void {
+  resync(immediate: boolean = false): void {
     if (!this._running) return;
     const now = Ditto.Clock.now();
     this._base = this._opt.step_ms();
-    this._deadline = now + this._base * this._span;
-    this._last_step = now;
+    this._deadline = immediate ? now : now + this._base * this._span;
+    if (!immediate) this._last_step = now;
     this._rate_start = now;
     this._rate_steps = 0;
     this._cancel();
