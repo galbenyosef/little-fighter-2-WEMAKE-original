@@ -16,8 +16,10 @@ export function DevStatsView(props: IDevStatsViewProps) {
   useCallbacks(
     lf2?.world.callbacks,
     useMemo<IWorldCallbacks>(() => ({
-      on_ups_update: (ups) => {
-        ref_ups.current!.innerText = "UPS:" + ups.toFixed(0);
+      on_ups_update: (ups, _score, speed) => {
+        const slow = speed != null && speed < 0.995;
+        ref_ups.current!.innerText =
+          "UPS:" + ups.toFixed(0) + (slow ? ` ×${speed!.toFixed(2)}` : "");
       },
       on_fps_update: (fps) => {
         ref_fps.current!.innerText = "FPS:" + fps.toFixed(0);

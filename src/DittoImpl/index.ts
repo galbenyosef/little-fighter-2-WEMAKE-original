@@ -1,5 +1,6 @@
 /*** AUTO EXPORT START ***/
 export * from "./AsyncCache";
+export * from "./Clock";
 export * from "./FullScreen";
 export * from "./Importer";
 export * from "./Interval";

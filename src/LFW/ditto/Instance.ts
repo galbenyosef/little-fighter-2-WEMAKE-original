@@ -6,6 +6,7 @@ import type { ICache } from './cache/ICache';
 import type { IFullScreen } from './fullscreen/IFullScreen';
 import type { IImageMgr } from "./image/IImageMgr";
 import type { IImporter } from './importer/IImporter';
+import type { IClock } from "./IClock";
 import type { IReadable } from "./IReadable";
 import type { IRender } from "./IRender";
 import type { ITimeout } from "./ITimeout";
@@ -28,6 +29,7 @@ export interface IDittoPack {
   Timeout: ITimeout;
   Interval: ITimeout;
   Render: IRender;
+  Clock: IClock;
   MD5: (...args: string[]) => string;
   Zip: {
     read_file(file: IReadable): Promise<IZip>;

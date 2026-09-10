@@ -1,5 +1,6 @@
 import { Callbacks } from './base/Callbacks';
 import { FPS } from './base/FPS';
+import { Ticker } from './base/Ticker';
 import { Background } from "./bg/Background";
 import { Buff } from "./buff/Buff";
 import { Camera } from './Camera';
@@ -61,10 +62,9 @@ export class World {
   private _need_FPS: boolean = true;
   private _need_UPS: boolean = true;
   private _FPS = new FPS(0.9);
-  private _UPS = new FPS(0.9);
   private _lifetime: number = 0;
   private _render_worker_id?: ReturnType<typeof Ditto.Render.add>;
-  private _update_worker_id?: ReturnType<typeof Ditto.Interval.add>;
+  private _update_worker?: Ticker;
   /** 
    * 临时实体列表
    *  
@@ -276,70 +276,86 @@ export class World {
   }
 
   stop_update() {
-    this._update_worker_id && Ditto.Interval.del(this._update_worker_id);
-    this._update_worker_id = void 0;
+    this._update_worker?.stop();
+    this._update_worker = void 0;
   }
+  get ticker(): Ticker | undefined { return this._update_worker }
   before_update?(): void;
   after_update?(): void;
   sleep(): void { this._sleeping = true }
-  awake(): void { this._sleeping = false }
+  awake(): void {
+    this._sleeping = false;
+    this._update_worker?.resync();
+  }
+
+  protected base_step_ms(): number {
+    let { playrate, UPS, atom_time } = this.dataset;
+    if (!between(playrate, 0.01, 1000)) {
+      Ditto.warn(`[${World.TAG}::start_update] playrate must be between 0.01 and 1000, but got ${playrate}, now reset to 1.0`);
+      playrate = this.dataset.playrate = 1
+    }
+    if (!between(UPS, 1, 120)) {
+      Ditto.warn(`[${World.TAG}::start_update] UPS must be between 1 and 120, but got ${UPS}, now reset to 60`);
+      UPS = this.dataset.UPS = 60
+    }
+    if (!(atom_time > 0)) {
+      Ditto.warn(`[${World.TAG}::start_update] atom_time must be > 0, but got ${atom_time}, now reset to 1`);
+      atom_time = this.dataset.atom_time = 1;
+    }
+    return 1000 / UPS / playrate;
+  }
+
+  protected update_once(dt: number): void {
+    if (this._sleeping) return;
+    this.before_update?.();
+    if (this._sleeping) return;
+    this.step();
+    this._lifetime++;
+    this.lfw.events.length = 0;
+    this.lfw.cmds.length = 0;
+    this.lfw.broadcasts.length = 0;
+
+    const { sync_render } = this.dataset;
+    if (sync_render == SyncRenderEnum.Sync) {
+      this.render_once(dt);
+      this._FPS.update(dt);
+      if (this._need_FPS) this.callbacks.call("on_fps_update", this._FPS.value);
+    } else if (sync_render == SyncRenderEnum.Half && floor(this._lifetime / this.dataset.playrate) % 2) {
+      this.render_once(dt * 2);
+      this._FPS.update(dt * 2);
+      if (this._need_FPS) this.callbacks.call("on_fps_update", this._FPS.value);
+    }
+
+    const worker = this._update_worker;
+    if (worker) {
+      this.TU = (1000 / this.dataset.UPS) * worker.span;
+      if (this._need_UPS)
+        this.callbacks.call("on_ups_update", worker.rate, 0, 1 / worker.span);
+    }
+    this.after_update?.();
+
+    if (this.dataset.sync_render !== sync_render)
+      this.start_render();
+  }
+
   start_update() {
-    if (this._update_worker_id) Ditto.Interval.del(this._update_worker_id);
-    let prev_time = Date.now();
-    const on_update = () => {
-      let { playrate, UPS, atom_time, sync_render } = this.dataset;
-      if (!between(playrate, 0.01, 1000)) {
-        Ditto.warn(`[${World.TAG}::start_update] playrate must be between 0.01 and 1000, but got ${playrate}, now reset to 1.0`);
-        playrate = this.dataset.playrate = 1
-      }
-      if (!between(UPS, 1, 120)) {
-        Ditto.warn(`[${World.TAG}::start_update] UPS must be between 1 and 120, but got ${UPS}, now reset to 60`);
-        UPS = this.dataset.UPS = 60
-      }
-      if (!(atom_time > 0)) {
-        Ditto.warn(`[${World.TAG}::start_update] atom_time must be > 0, but got ${atom_time}, now reset to 1`);
-        atom_time = this.dataset.atom_time = 1;
-      }
-      let fix_radio = 1;
-      this.TU = 1000 / UPS;
-      const ideally_dt = round(this.TU / playrate)
-      try {
-        const time = Date.now();
-        const real_dt = time - prev_time;
-        if (real_dt < fix_radio * ideally_dt) return;
-        if (this._sleeping) return;
-        this.before_update?.();
-        if (this._sleeping) return;
-        this.step();
-        this._lifetime++;
-        this.lfw.events.length = 0;
-        this.lfw.cmds.length = 0;
-        this.lfw.broadcasts.length = 0;
-
-        if (sync_render == SyncRenderEnum.Sync) {
-          this.render_once(real_dt);
-          this._FPS.update(real_dt);
-          if (this._need_FPS) this.callbacks.call("on_fps_update", this._FPS.value);
-        } else if (sync_render == SyncRenderEnum.Half && floor(this._lifetime / playrate) % 2) {
-          this.render_once(real_dt * 2);
-          this._FPS.update(real_dt * 2);
-          if (this._need_FPS) this.callbacks.call("on_fps_update", this._FPS.value);
+    this.stop_update();
+    this.base_step_ms();
+    this.TU = 1000 / this.dataset.UPS;
+    const worker = new Ticker({
+      step_ms: () => this.base_step_ms(),
+      on_step: (dt) => {
+        try {
+          this.update_once(dt);
+        } catch (e: any) {
+          Ditto.warn(e)
+          if (e.errors) Ditto.warn(e.errors)
+          this.stop_update();
         }
-        if (this._need_UPS) this.callbacks.call("on_ups_update", this._UPS.value, 0);
-        this.after_update?.();
-        this._UPS.update(real_dt);
-        fix_radio = 1 - clamp(6 * (UPS - this._UPS.value) / UPS, 0, 1);
-        prev_time = time;
-
-        if (this.dataset.sync_render !== sync_render)
-          this.start_render();
-      } catch (e: any) {
-        Ditto.warn(e)
-        if (e.errors) Ditto.warn(e.errors)
-        this.stop_update();
-      }
-    };
-    this._update_worker_id = Ditto.Interval.add(on_update, 0);
+      },
+    });
+    this._update_worker = worker;
+    worker.start();
   }
 
   private _restrict_result: IVector3Like = { x: 0, y: 0, z: 0 }

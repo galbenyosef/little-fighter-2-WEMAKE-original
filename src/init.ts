@@ -30,6 +30,7 @@ Ditto.setup({
   Timeout: dom.__Timeout,
   Interval: dom.__Interval,
   Render: dom.__Render,
+  Clock: dom.__Clock,
   Keyboard: dom.__Keyboard,
   Pointings: dom.__Pointings,
   FullScreen: dom.__FullScreen,

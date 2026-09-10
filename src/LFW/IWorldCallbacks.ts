@@ -40,7 +40,7 @@ export interface IWorldCallbacks {
    * @param {number} fps
    * @param {number} score 性能评分[0,100]
    */
-  on_ups_update?(fps: number, score: number): void;
+  on_ups_update?(fps: number, score: number, speed?: number): void;
 
   on_dataset_change?<T extends keyof IWorldDataset>(
     key: T,
