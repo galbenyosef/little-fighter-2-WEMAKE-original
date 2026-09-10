@@ -3,7 +3,7 @@ import type { BotController } from "../bot/BotController";
 import type { BallController } from "../controller/BallController";
 import type { BaseController } from "../controller/BaseController";
 import type { LocalController } from "../controller/LocalController";
-import type { IBgData } from "../defines";
+import { EntityGroup, type IBgData } from "../defines";
 import { EntityEnum } from "../defines/EntityEnum";
 import type { IEntityData } from "../defines/IEntityData";
 export const is_fighter_data = (v: any) => v?.type === EntityEnum.Fighter;
@@ -14,6 +14,15 @@ export const is_fighter = (v: any) => is_fighter_data(v?.data);
 export const is_ball = (v: any) => is_ball_data(v?.data);
 export const is_weapon = (v: any) => is_weapon_data(v?.data);
 export const is_entity = (v: any) => is_entity_data(v?.data);
+const _bossing = (v: any) => v == EntityGroup.Boss;
+export const is_boss = (v: any) => {
+  if (!v) return false;
+  const { data: d } = v;
+  if (!d) return false
+  if (!is_entity_data(d)) return false;
+  if (!v.data.group?.length) return false;
+  return v.data.group.some(_bossing)
+};
 export const is_object = (v: any): v is Entity => is_object_data(v?.data);
 export const is_base_ctrl = (v: any): v is BaseController =>
   v?.__is_base_ctrl__ === true;

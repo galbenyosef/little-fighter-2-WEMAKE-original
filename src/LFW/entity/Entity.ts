@@ -45,7 +45,7 @@ import { StatBarType } from "./StatBarType";
 import { summary_mgr } from "./SummaryMgr";
 import { calc_v } from "./calc_v";
 import { turn_face } from "./face_helper";
-import { is_ball_ctrl, is_fighter, is_human_ctrl } from "./type_check";
+import { is_ball_ctrl, is_boss, is_fighter, is_human_ctrl } from "./type_check";
 export interface IEntityRenderer {
   render(dt: number, dfactor: number): void;
 }
@@ -1913,6 +1913,8 @@ export class Entity {
       return true;
     }
     if (throwinjury === -1) {
+      if (this.lfw.survival_rank_mode && is_boss(this.catching)) 
+        return true
       this.transfrom_to_another(this.catching._data);
       this.enter_frame(Defines.NEXT_FRAME_AUTO)
       return true;
