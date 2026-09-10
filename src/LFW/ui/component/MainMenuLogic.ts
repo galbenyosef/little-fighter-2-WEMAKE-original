@@ -1,4 +1,5 @@
 import type { UINode } from "../UINode";
+import { ReachableGroup } from "./ReachableGroup";
 import { UIComponent } from "./UIComponent";
 
 /**
@@ -13,11 +14,17 @@ export class MainMenuLogic extends UIComponent<{}> {
     this._survival_btn = this.node.search_node("btn_bilibili_survival") ?? null;
     return this._survival_btn;
   }
+  protected get reachable_group(): ReachableGroup | undefined {
+    return this.node.search_component(ReachableGroup);
+  }
   protected apply(): void {
     const toy = this.lfw.toy_env;
     const btn = this.survival_btn;
     btn?.set_visible(toy);
     btn?.set_disabled(!toy);
+    // 生存入口不可用（非 B站 Toy）时，初始焦点交给菜单里第一个可用项（vs mode），
+    // 否则 auto_focus 落在被隐藏的入口上，整个菜单都没有焦点
+    if (!toy && !this.node.focused_node) this.reachable_group?.focus_next();
   }
   override on_start(): void {
     super.on_start?.();
