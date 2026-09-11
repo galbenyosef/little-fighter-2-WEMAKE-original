@@ -38,17 +38,20 @@ class Pack<F extends {}> {
   }
 
   private handle_pendings() {
-    const pending = this._pendings.shift()
-    if (!pending) return;
-    this._emiting = true
-    for (const v of this._set) {
-      const f = (v as any)[this.fn_name];
-      f.apply(v, pending.args);
-      if ('once' in v && v.once)
-        this._waits.push({ type: 'del', who: f })
+
+    while (this._pendings.length) {
+      const pending = this._pendings.shift()
+      if (!pending) return;
+      this._emiting = true
+      for (const v of this._set) {
+        const f = (v as any)[this.fn_name];
+        f.apply(v, pending.args);
+        if ('once' in v && v.once)
+          this._waits.push({ type: 'del', who: v })
+      }
+      this.handle_waits();
+      this._emiting = false
     }
-    this.handle_waits();
-    this._emiting = false
   }
 
   private handle_waits() {
