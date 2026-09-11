@@ -1,8 +1,17 @@
 import type { IStyle } from "../defines";
 
 export class Style implements IStyle {
+  private static _wraps = new WeakMap<IStyle, Style>();
   private _version = 0;
   private _data: IStyle = {};
+
+  static from(v: IStyle): Style {
+    if (v instanceof Style) return v;
+    let ret = Style._wraps.get(v);
+    if (!ret) Style._wraps.set(v, ret = new Style());
+    ret.assign(v);
+    return ret;
+  }
 
   get version(): number { return this._version; }
 
@@ -15,10 +24,15 @@ export class Style implements IStyle {
     this._version++;
   }
 
-  /** 批量设置属性并自动递增版本 */
   assign(props: Partial<IStyle>): void {
-    Object.assign(this._data, props);
-    this._version++;
+    let changed = false;
+    for (const k in props) {
+      const v = (props as any)[k];
+      if ((this._data as any)[k] === v) continue;
+      (this._data as any)[k] = v;
+      changed = true;
+    }
+    if (changed) this._version++;
   }
 
   /** 手动递增版本号 */
