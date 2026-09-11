@@ -92,4 +92,5 @@ export * from "./PlayerKeyEdit";
 export * from "./CharMenu";
 export * from "./Slider";
 export * from "./Tests";
+export * from "./WeaponRain";
 /*** AUTO EXPORT END ***/

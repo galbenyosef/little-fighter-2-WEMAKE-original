@@ -84,6 +84,7 @@ export const regist_components = () => {
     _.TextInput,
     _.VerticalLayout,
     _.VsModeLogic,
+    _.WeaponRain,
     _.WrapContent
   ].map(v => Factory.register_component(v));
 }

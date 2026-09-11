@@ -44,6 +44,7 @@ import { WorldDataset } from "./WorldDataset";
 const CHASING_UPDATE_INTERVAL = 8;
 const MAX_DEBUG_ENTITIES = 355
 const MAX_STEP_ERRORS = 120
+const WEAPON_X_SECTION = 400;
 const x_sorter = (a: Entity, b: Entity) => {
   const d = a.aabb_min_x - b.aabb_min_x;
   if (d !== 0) return d;
@@ -99,7 +100,7 @@ export class World {
   private _alive_players = new Set<Entity>();
   public has_players_alive: boolean = false;
   public TU: number = 1;
-
+  readonly ground_weapon_counts = new Map<number, number>();
   get bg() { return this._bg; }
   set bg(v: Background) {
     if (v === this._bg) return;
@@ -660,10 +661,15 @@ export class World {
     }
     const len = this.entities.length = this.entities.length - offset
     this.entities.sort(x_sorter);
+    this.ground_weapon_counts.clear();
 
     for (let i = 0; i < len; i++) {
       const a = this.entities[i];
-
+      if (is_weapon(a) && a.is_on_ground) {
+        const section = round(a.position.x / WEAPON_X_SECTION);
+        const count = this.ground_weapon_counts.get(section) ?? 0;
+        this.ground_weapon_counts.set(section, count + 1)
+      }
       const { ctrl } = a
       if (update_chasing && is_ball_ctrl(ctrl))
         ctrl.update_lookup(i, this.entities)
@@ -867,6 +873,10 @@ export class World {
 
   find_entity(id: string) {
     return this.entity_map.get(id);
+  }
+
+  weapon_count_at(x: number): number {
+    return this.ground_weapon_counts.get(round(x / WEAPON_X_SECTION)) ?? 0
   }
 
   /** Map<队伍, 队伍存活人数> */

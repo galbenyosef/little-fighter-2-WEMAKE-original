@@ -15,7 +15,6 @@ import type { IStageCallbacks } from "../../stage/IStageCallbacks";
 import { Stage } from "../../stage/Stage";
 import { max } from "../../utils";
 import { range } from "../../utils/math/range";
-import { Times } from "../../utils/Times";
 import type { IUIKeyEvent } from "../IUIKeyEvent";
 import { UINode } from "../UINode";
 import { CameraCtrl } from "./CameraCtrl";
@@ -25,6 +24,7 @@ import { GameModeFSMState_BeforeEnd, GameModeFSMState_End, GameModeFSMState_Runn
 import { Jalousie } from "./Jalousie";
 import { ModeState } from "./ModeState";
 import { UIComponent } from "./UIComponent";
+import { WeaponRain } from "./WeaponRain";
 
 export interface IDemoModeLogicProps {
   focus_prefix?: UINode;
@@ -66,7 +66,6 @@ export class DemoModeLogic extends UIComponent<IDemoModeLogicProps> {
 
   protected _staring?: Entity | undefined;
   protected _free?: boolean
-  protected weapon_drop_timer = new Times(0, 1200);
   protected static _situations: Randoming<DemoSituation> | null = null
   protected static _situation: DemoSituation | null = null
   protected static _stages: Randoming<IStageInfo> | null = null
@@ -226,6 +225,9 @@ export class DemoModeLogic extends UIComponent<IDemoModeLogicProps> {
     this.world.paused = false;
     const { far, near, left, right } = this.lfw.world.bg;
     const { is_stage_mode, is_vs_mode } = this;
+    const weapon_rain = this.node.search_component(WeaponRain);
+    if (weapon_rain)
+      weapon_rain.props.groups = is_stage_mode ? EntityGroup.StageWeapon : EntityGroup.VsWeapon;
     if (is_vs_mode) this.lfw.sounds.play_bgm('?');
     else fighters_datas.push(...boss_datas)
 
@@ -331,20 +333,6 @@ export class DemoModeLogic extends UIComponent<IDemoModeLogicProps> {
     }
   }
   override update(dt: number): void {
-
-    this.lfw.mt.mark = 'demo_update_weapon_rain';
-    if (
-      !this.world.paused &&
-      !this.lfw.world.stage.weapon_rain_disabled &&
-      this.weapon_drop_timer.add() &&
-      this.lfw.mt.range(0, 10) <= 2
-    ) {
-      this.lfw.weapons.add_random(1, true,
-        this.is_stage_mode ?
-          EntityGroup.StageWeapon :
-          EntityGroup.VsWeapon
-      )
-    }
     const { cam_ctrl } = this.props;
     do {
       if (!cam_ctrl) break;

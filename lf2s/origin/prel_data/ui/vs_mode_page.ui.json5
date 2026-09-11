@@ -1,7 +1,7 @@
 {
   name: "页面：对战模式",
   id: "vs_mode_page",
-  component: ["SummaryLogic()", "VsModeLogic()"],
+  component: ["SummaryLogic()", "VsModeLogic()", { cls: "WeaponRain", properties: { groups: "VsWeapon" } }],
   items: [
     {
       pos: "0, 10",

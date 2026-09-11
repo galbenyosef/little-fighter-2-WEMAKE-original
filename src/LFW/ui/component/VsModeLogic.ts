@@ -1,11 +1,11 @@
 import { FSM } from "../../base/FSM";
-import { EntityGroup, GameKey } from "../../defines";
-import { Times } from "../../utils/Times";
+import { GameKey } from "../../defines";
 import type { IUIKeyEvent } from "../IUIKeyEvent";
 import { FighterStatBar } from "./FighterStatBar";
 import { GameModeFSMState_BeforeEnd, GameModeFSMState_End, GameModeFSMState_Running, type GameModeFSMState } from "./GameModeFSMState";
 import { ModeState } from "./ModeState";
 import { UIComponent } from "./UIComponent";
+
 export class VsModeLogic extends UIComponent {
   static override readonly TAGS: string[] = ["VsModeLogic"];
   readonly fsm = new FSM<ModeState, GameModeFSMState>().add(
@@ -13,7 +13,6 @@ export class VsModeLogic extends UIComponent {
     new GameModeFSMState_BeforeEnd(this),
     new GameModeFSMState_End(this)
   )
-  protected weapon_drop_timer = new Times(0, 1200);
   override on_start(): void {
     super.on_start?.();
     this.fsm.use(ModeState.Running)
@@ -53,10 +52,6 @@ export class VsModeLogic extends UIComponent {
   }
   override update(dt: number): void {
     this.fsm.update(dt);
-    this.lfw.mt.mark = 'vs_mode_weapn_rain';
-    if (!this.world.paused && this.weapon_drop_timer.add() && this.lfw.mt.range(0, 10) <= 2) {
-      this.lfw.weapons.add_random(1, true, EntityGroup.VsWeapon)
-    }
   }
   override on_key_down(e: IUIKeyEvent): void {
     switch (e.game_key) {

@@ -19,8 +19,9 @@
     {
       id: "cam_ctrl",
       cls: "CameraCtrl",
-      properties: { },
+      properties: {},
     },
+    { cls: "WeaponRain", properties: {} },
   ],
   templates: {
     shutter_item: {
@@ -62,7 +63,7 @@
       center: "0.5, 0",
       pos: "400, 0",
       actions: {
-        click: [ "sound(ok)", "link_to(https://lf.gim.ink)" ],
+        click: ["sound(ok)", "link_to(https://lf.gim.ink)"],
       },
     },
     "ui/center_pause_label.ui.json5",
@@ -72,18 +73,18 @@
     {
       pos: "397,10",
       center: "0.5,0",
-      component: [ "StageTitleText()" ],
+      component: ["StageTitleText()"],
     },
     {
       visible: true,
-      component: [ { cls: "PauseHandling", properties: { reverse: true } } ],
+      component: [{ cls: "PauseHandling", properties: { reverse: true } }],
       i18n: "DEMO",
       outlineColor: "#005A8E",
       outlineWidth: 4,
       outlineAlpha: 1,
       style: {
         fill_style: "white",
-        font: "24px \"Arial Black\", Arial",
+        font: '24px "Arial Black", Arial',
       },
       center: "0.5,0.5",
       pos: "397, 225",
@@ -102,7 +103,7 @@
         fill_style: "white",
         font: "9px Arial",
       },
-      component: [ { cls: "Alignment", properties: { right: "right", bottom: "bottom" } } ],
+      component: [{ cls: "Alignment", properties: { right: "right", bottom: "bottom" } }],
       center: "1,1",
     },
     {
@@ -115,9 +116,7 @@
         fill_style: "white",
         font: "9px Arial",
       },
-      component: [
-        { cls: "Alignment", properties: { left: "left", bottom: "bottom" } },
-      ],
+      component: [{ cls: "Alignment", properties: { left: "left", bottom: "bottom" } }],
       center: "0,1",
     },
     {
@@ -169,6 +168,6 @@
     },
   ],
   actions: {
-    stop: [ "remove_all_entities()", "destory_stage()" ],
+    stop: ["remove_all_entities()", "destory_stage()"],
   },
 }

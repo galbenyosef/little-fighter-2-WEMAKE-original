@@ -1,9 +1,8 @@
 import { FSM } from "../../base/FSM";
-import { EntityGroup, GameKey, StageActions, type IStagePhaseInfo } from "../../defines";
+import { GameKey, StageActions, type IStagePhaseInfo } from "../../defines";
 import type { IWorldCallbacks } from "../../IWorldCallbacks";
 import type { Stage } from "../../stage";
 import type { IStageCallbacks } from "../../stage/IStageCallbacks";
-import { Times } from "../../utils/Times";
 import type { IUIKeyEvent } from "../IUIKeyEvent";
 import type { UINode } from "../UINode";
 import { ComponentsPlayer } from "./ComponentsPlayer";
@@ -25,7 +24,6 @@ export class StageModeLogic extends UIComponent {
   gogogo_loop?: ComponentsPlayer;
   protected rank_hint_cheat?: UINode | null;
   protected rank_hint_mods?: UINode | null;
-  protected weapon_drop_timer = new Times(0, 1200);
   protected world_callbacks: IWorldCallbacks = {
     on_stage_change: (stage, prev) => {
       prev.callbacks.del(this.stage_callbacks)
@@ -153,15 +151,6 @@ export class StageModeLogic extends UIComponent {
     if (this.lfw.survival_rank_mode) {
       this.rank_hint_cheat?.set_visible(this.lfw.survival_rank_cheated)
       this.rank_hint_mods?.set_visible(this.lfw.survival_rank_modded)
-    }
-    this.lfw.mt.mark = 'stage_mode_weapn_rain';
-    if (
-      !this.world.paused &&
-      !this.lfw.world.stage.weapon_rain_disabled &&
-      this.weapon_drop_timer.add() &&
-      this.lfw.mt.range(0, 10) <= 2
-    ) {
-      this.lfw.weapons.add_random(1, true, EntityGroup.StageWeapon)
     }
     if (this.jalousie && !this.jalousie.open && this.jalousie.anim.done) {
       this.lfw.goto_next_stage()
