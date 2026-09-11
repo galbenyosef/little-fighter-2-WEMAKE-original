@@ -1,7 +1,9 @@
+import { Ditto } from "../ditto";
 import { list_fn } from "../utils/container_help/list_fn";
 
 export const EFUNC = (..._args: any[]) => void 0
 
+const MAX_PENDINGS_PER_FLUSH = 1000;
 class Pack<F extends {}> {
   readonly fn_name: keyof F;
   get emiting() { return this._emiting }
@@ -10,6 +12,7 @@ class Pack<F extends {}> {
   private _pendings: { args: any[] }[] = []
   private _set: Set<F> = new Set()
   private _waits: { type: 'del' | 'add', who: F }[] = []
+  private _overflow_warned: boolean = false;
 
   constructor(fn_name: keyof F) {
     this.fn_name = fn_name
@@ -38,10 +41,24 @@ class Pack<F extends {}> {
   }
 
   private handle_pendings() {
+    let done = 0;
 
     while (this._pendings.length) {
+      if (done >= MAX_PENDINGS_PER_FLUSH) {
+        if (!this._overflow_warned) {
+          this._overflow_warned = true;
+          Ditto.warn(
+            `[NoEmitCallbacks::${this.fn_name.toString()}] ` +
+            `${MAX_PENDINGS_PER_FLUSH}+ jobs done in a single flush,` +
+            ` ${this._pendings.length} still pending — possible broadcast loop?` +
+            ` Remaining jobs will be dispatched on the next emit.`
+          );
+        }
+        return;
+      }
       const pending = this._pendings.shift()
       if (!pending) return;
+      ++done;
       this._emiting = true
       for (const v of this._set) {
         const f = (v as any)[this.fn_name];
@@ -52,6 +69,7 @@ class Pack<F extends {}> {
       this.handle_waits();
       this._emiting = false
     }
+    this._overflow_warned = false;
   }
 
   private handle_waits() {
