@@ -59,9 +59,13 @@ export class CharMenuHead extends UIComponent<ICharMenuHeadProps> {
     this.props.start_hints_node?.set_visible(this._joined && !this.countdown_node?.visible);
     this.props.head_pic?.node.set_visible(!hints_visible && !this.countdown_node?.visible && !!this._path)
   }
+  protected _count_down_num?: number;
   count_down(num: number): void {
     num = floor(num)
-    this.props.countdown_label?.set_text(`${num}`)
+    if (num !== this._count_down_num) {
+      this._count_down_num = num;
+      this.props.countdown_label?.set_text(`${num}`)
+    }
     this.countdown_node?.set_visible(num >= 1);
   }
 }

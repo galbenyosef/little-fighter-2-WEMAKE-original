@@ -167,6 +167,9 @@ export class FighterStatBar extends UIComponent<IFighterStatBarProps> {
       this.props.head_img?.set_src('')
     }
   }
+  protected _last_name?: string;
+  protected _last_name_version: number = -1;
+  protected _last_name_outline?: string;
   update_name() {
     const { name_txt } = this.props;
     if (!name_txt) return;
@@ -175,6 +178,12 @@ export class FighterStatBar extends UIComponent<IFighterStatBarProps> {
     let name = name0 || name1;
     if (name0 !== name1 && name0 && name1)
       name = `${name1} (${name0})`
+    const version = name_txt.style.version;
+    const outline = name_txt.outlineColor;
+    if (name === this._last_name && version === this._last_name_version && outline === this._last_name_outline) return;
+    this._last_name = name;
+    this._last_name_version = version;
+    this._last_name_outline = outline;
     name_txt.set_text(name)
   }
   update_team() {
@@ -182,12 +191,14 @@ export class FighterStatBar extends UIComponent<IFighterStatBarProps> {
     if (!name_txt) return;
     const team = this.entity?.team ?? 0;
     const { txt_color, txt_outline_color } = Defines.TeamInfoMap[team] || Defines.TeamInfoMap[T_E.Independent]
+    if (name_txt.outlineColor === txt_outline_color && name_txt.style.fill_style === txt_color) return;
     name_txt.outlineColor = txt_outline_color;
     name_txt.style.fill_style = txt_color;
+    name_txt.style.touch();
   }
   override update(): void {
-    this.update_name();
     this.update_team();
+    this.update_name();
     const { entity, props: { hp_bar } } = this
     if (hp_bar) {
       this.healing = !!entity?.healing && (entity.lifetime % 8) < 4;
