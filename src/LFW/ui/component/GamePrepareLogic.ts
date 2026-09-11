@@ -242,7 +242,7 @@ export class GamePrepareLogic extends UIComponent<IGamePrepareLogicProps> {
       const node = this.node.search_node(`survival_rank_period_${p}`)
       if (!node) continue
       const selected = p === this.rank_period
-      const style: any = { ...(node.text?.style ?? {}) }
+      const style = node.style
       style.fill_style = selected ? '#ffffff' : '#9b9bff'
       const txt = this.lfw.string(`bilibili_survival.rank_period_${p}`)
       node.set_text(txt, style)

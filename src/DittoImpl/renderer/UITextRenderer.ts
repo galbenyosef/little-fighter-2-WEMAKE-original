@@ -5,15 +5,13 @@ import { round } from "@/LFW/utils";
 import { TextMesh } from "./meshs/TextMesh";
 import { UINodeRenderer } from "./UINodeRenderer";
 
-// ========== UITextRenderer ==========
-
 export class UITextRenderer {
   mesh: TextMesh;
   owner: UINodeRenderer;
   ui: UINode;
 
-  /** 缓存上次渲染的文本与样式版本，避免无变化时重绘 */
   protected _last_text: string = '';
+  protected _last_style: Style | undefined = void 0;
   protected _last_style_version: number = -1;
 
   constructor(owner: UINodeRenderer) {
@@ -42,6 +40,12 @@ export class UITextRenderer {
     };
   }
 
+  protected _is_style_changed(style: Style | undefined): boolean {
+    if (style !== this._last_style) return true;
+    if (style == null) return false;
+    return style.version !== this._last_style_version;
+  }
+
   /** 更新文字并刷新贴图 */
   update(): void {
     const { ui, mesh } = this;
@@ -50,11 +54,12 @@ export class UITextRenderer {
     // 通过 lf2.string() 解析 i18n 文本
     const text = txt?.text ? ui.lfw.string(txt.text) : '';
 
-    // 文本变化或 style 版本递增时才重绘
-    if (text !== this._last_text || ui.style.version !== this._last_style_version) {
+    const style = txt ? Style.from(txt.style) : void 0;
+    if (text !== this._last_text || this._is_style_changed(style)) {
       this._last_text = text;
-      this._last_style_version = ui.style.version;
-      mesh.set_style(this._normalize_style(txt?.style));
+      this._last_style = style;
+      this._last_style_version = style ? style.version : -1;
+      mesh.set_style(this._normalize_style(style));
       mesh.set_text(ui.lfw, text).catch(e => console.warn(e));
     }
 
