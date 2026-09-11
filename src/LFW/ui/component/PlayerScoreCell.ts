@@ -1,10 +1,12 @@
 import { summary_mgr } from "../../entity/SummaryMgr";
 import { TextInfo } from "../../ditto/image/TextInfo";
-import type { IStyle } from "../../defines/IStyle";
+import { Style } from "../Style";
 import { PlayerScore } from "./PlayerScore";
 import { UIComponent } from "./UIComponent";
 export class PlayerScoreCell extends UIComponent {
   static override readonly TAGS: string[] = ["PlayerScoreCell"];
+  protected _last_txt: string | undefined;
+  protected _last_style_version: number = -1;
   get kind() {
     return this.info.args[0];
   }
@@ -13,20 +15,25 @@ export class PlayerScoreCell extends UIComponent {
   }
 
   override update(): void {
-    super.on_show?.();
-    this.node.text = new TextInfo({ text: this.get_txt(), style: this.get_style() })
+    const style = this.get_style();
+    const txt = this.get_txt();
+    if (txt === this._last_txt && style.version === this._last_style_version) return;
+    this._last_txt = txt;
+    this._last_style_version = style.version;
+    this.node.text = new TextInfo({ text: txt, style })
   }
 
-  protected get_style(): IStyle {
+  protected get_style(): Style {
     const s = this.player_score;
     const c = this.player_score?.fighter;
     if (!s || !c) return this.node.style;
     if (this.kind === "status") {
-      let clr = this.node.style.fill_style;
-      if (c.hp > 0) clr = this.node.get_value("win_alive_color");
-      else if (s.lose) clr = this.node.get_value("lose_color");
-      else clr = this.node.get_value("win_dead_color");
-      return { ...this.node.style, fill_style: clr };
+
+      const style = this.node.style;
+      if (c.hp > 0) style.fill_style = this.node.get_value("win_alive_color");
+      else if (s.lose) style.fill_style = this.node.get_value("lose_color");
+      else style.fill_style = this.node.get_value("win_dead_color");
+      return style;
     }
     return this.node.style;
   }
